@@ -1,0 +1,16 @@
+{
+  "timestamp": "2025-09-13T12:08:58.762Z",
+  "deployer": "0xF53Bedb68675e3B8221a8bf351C2892Bae89Aef4",
+  "router": "0x49CC894c82d19FdcBDedfbF98832553749e2F73E",
+  "pairs": {
+    "SHAH/USDT": {
+      "status": "FAILED",
+      "error": "execution reverted"
+    },
+    "SHAH/DAI": {
+      "status": "FAILED",
+      "error": "nonce too low"
+    }
+  },
+  "status": "SUCCESS"
+}

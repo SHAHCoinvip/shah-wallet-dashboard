@@ -1,0 +1,11 @@
+{
+  "contractName": "ShahSwapRouterVS3",
+  "address": "0x16e9e54973C70D3C00d580A5A220E63317428D75",
+  "factory": "0x6943c5d80d4FBc2fC351E40C8f469C3B0E98a204",
+  "weth": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+  "oracle": "0x3712f346f2538E2101D38F23db1B7aC382eAD30D",
+  "deployer": "0xF53Bedb68675e3B8221a8bf351C2892Bae89Aef4",
+  "blockNumber": 23354590,
+  "timestamp": "2025-09-13T13:57:27.006Z",
+  "network": "mainnet"
+}

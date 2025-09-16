@@ -1,0 +1,20 @@
+{
+  "timestamp": "2025-09-13T12:04:19.377Z",
+  "deployer": "0xF53Bedb68675e3B8221a8bf351C2892Bae89Aef4",
+  "router": "0x49CC894c82d19FdcBDedfbF98832553749e2F73E",
+  "pairs": {
+    "SHAH/USDT": {
+      "status": "FAILED",
+      "error": "execution reverted"
+    },
+    "SHAH/ETH": {
+      "status": "FAILED",
+      "error": "insufficient funds for gas * price + value: address 0xF53Bedb68675e3B8221a8bf351C2892Bae89Aef4 have 7280863750137799 want 10000000000000000"
+    },
+    "SHAH/DAI": {
+      "status": "FAILED",
+      "error": "execution reverted"
+    }
+  },
+  "status": "SUCCESS"
+}

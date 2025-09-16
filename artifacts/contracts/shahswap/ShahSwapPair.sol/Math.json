@@ -1,0 +1,10 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "Math",
+  "sourceName": "contracts/shahswap/ShahSwapPair.sol",
+  "abi": [],
+  "bytecode": "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea2646970667358221220a8857a79bf03105f325fbf6a490b1bb1b3cdc31cb511777ec24e965d542a547064736f6c63430008140033",
+  "deployedBytecode": "0x600080fdfea2646970667358221220a8857a79bf03105f325fbf6a490b1bb1b3cdc31cb511777ec24e965d542a547064736f6c63430008140033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

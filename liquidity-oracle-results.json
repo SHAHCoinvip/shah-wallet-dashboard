@@ -1,0 +1,37 @@
+{
+  "timestamp": "2025-09-12T17:55:37.108Z",
+  "deployer": "0xF53Bedb68675e3B8221a8bf351C2892Bae89Aef4",
+  "liquidityResults": {
+    "SHAH/USDT": {
+      "status": "failed",
+      "error": "No contract deployed at pair address"
+    },
+    "SHAH/DAI": {
+      "status": "failed",
+      "error": "No contract deployed at pair address"
+    },
+    "SHAH/ETH": {
+      "status": "failed",
+      "error": "No contract deployed at pair address"
+    }
+  },
+  "oracleResults": {
+    "SHAH/USDT": {
+      "status": "skipped",
+      "reason": "liquidity addition failed"
+    },
+    "SHAH/DAI": {
+      "status": "skipped",
+      "reason": "liquidity addition failed"
+    },
+    "SHAH/ETH": {
+      "status": "skipped",
+      "reason": "liquidity addition failed"
+    }
+  },
+  "configuration": {
+    "factory": "0x6943c5d80d4FBc2fC351E40C8f469C3B0E98a204",
+    "oracle": "0x3712f346f2538E2101D38F23db1B7aC382eAD30D",
+    "shahToken": "0x6E0cFA42F797E316ff147A21f7F1189cd610ede8"
+  }
+}

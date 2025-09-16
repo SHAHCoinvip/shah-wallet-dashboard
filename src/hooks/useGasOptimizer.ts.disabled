@@ -1,0 +1,291 @@
+import { useState, useEffect, useCallback } from 'react'
+import { useNetwork, usePublicClient } from 'wagmi'
+import { 
+  compareGasCosts, 
+  fetchGasPrices, 
+  estimateGasForTransaction,
+  getGasOptimizationTips,
+  type GasPrice,
+  type GasRecommendation,
+  type NetworkGasInfo
+} from '@/lib/gasCompare'
+
+export interface GasSettings {
+  maxFeePerGas: string
+  maxPriorityFeePerGas: string
+  gasLimit: string
+  preset: 'slow' | 'standard' | 'fast' | 'rapid' | 'custom'
+}
+
+export interface GasOptimizerState {
+  // Current settings
+  settings: GasSettings
+  // Gas price data
+  gasPrices: GasPrice | null
+  // Network comparison
+  recommendation: GasRecommendation | null
+  // UI state
+  loading: boolean
+  error: string | null
+  // Computed values
+  estimatedCost: {
+    usd: number
+    native: number
+  }
+  estimatedTime: string
+  tips: string[]
+}
+
+const DEFAULT_GAS_SETTINGS: GasSettings = {
+  maxFeePerGas: '',
+  maxPriorityFeePerGas: '',
+  gasLimit: '21000',
+  preset: 'standard'
+}
+
+const PRESET_MULTIPLIERS = {
+  slow: 0.8,
+  standard: 1.0,
+  fast: 1.3,
+  rapid: 1.8
+}
+
+export const useGasOptimizer = (
+  transactionType: 'transfer' | 'swap' | 'stake' | 'approve' | 'custom' = 'transfer',
+  complexity: 'simple' | 'medium' | 'complex' = 'simple'
+) => {
+  const { chain } = useNetwork()
+  const publicClient = usePublicClient()
+  
+  const [state, setState] = useState<GasOptimizerState>({
+    settings: DEFAULT_GAS_SETTINGS,
+    gasPrices: null,
+    recommendation: null,
+    loading: false,
+    error: null,
+    estimatedCost: { usd: 0, native: 0 },
+    estimatedTime: '~30 seconds',
+    tips: []
+  })
+
+  // Fetch gas prices for current network
+  const fetchCurrentGasPrices = useCallback(async () => {
+    if (!chain?.id) return
+
+    setState(prev => ({ ...prev, loading: true, error: null }))
+
+    try {
+      const gasPrices = await fetchGasPrices(chain.id)
+      setState(prev => ({ 
+        ...prev, 
+        gasPrices,
+        loading: false 
+      }))
+
+      // Update settings with current gas prices
+      updateSettingsFromPreset('standard', gasPrices)
+    } catch (error) {
+      setState(prev => ({ 
+        ...prev, 
+        error: 'Failed to fetch gas prices',
+        loading: false 
+      }))
+    }
+  }, [chain?.id])
+
+  // Update settings based on preset
+  const updateSettingsFromPreset = useCallback((
+    preset: GasSettings['preset'], 
+    gasPrices?: GasPrice
+  ) => {
+    const prices = gasPrices || state.gasPrices
+    if (!prices) return
+
+    let maxFeePerGas: string
+    let maxPriorityFeePerGas: string
+
+    if (preset === 'custom') {
+      // Keep current custom values
+      maxFeePerGas = state.settings.maxFeePerGas
+      maxPriorityFeePerGas = state.settings.maxPriorityFeePerGas
+    } else {
+      const multiplier = PRESET_MULTIPLIERS[preset]
+      const baseFee = prices.baseFee || prices.standard
+      const priorityFee = prices.priorityFee || (prices.standard * 0.1)
+
+      maxFeePerGas = (baseFee * multiplier).toString()
+      maxPriorityFeePerGas = (priorityFee * multiplier).toString()
+    }
+
+    const gasLimit = estimateGasForTransaction(transactionType, complexity).toString()
+
+    setState(prev => ({
+      ...prev,
+      settings: {
+        ...prev.settings,
+        preset,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        gasLimit
+      }
+    }))
+  }, [state.gasPrices, state.settings.maxFeePerGas, state.settings.maxPriorityFeePerGas, transactionType, complexity])
+
+  // Update individual settings
+  const updateSettings = useCallback((updates: Partial<GasSettings>) => {
+    setState(prev => ({
+      ...prev,
+      settings: {
+        ...prev.settings,
+        ...updates,
+        preset: updates.preset || (updates.maxFeePerGas || updates.maxPriorityFeePerGas ? 'custom' : prev.settings.preset)
+      }
+    }))
+  }, [])
+
+  // Compare gas costs across networks
+  const compareNetworks = useCallback(async () => {
+    if (!chain?.id) return
+
+    setState(prev => ({ ...prev, loading: true }))
+
+    try {
+      const gasLimit = parseInt(state.settings.gasLimit) || 21000
+      const recommendation = await compareGasCosts(gasLimit, chain.id)
+      
+      setState(prev => ({
+        ...prev,
+        recommendation,
+        loading: false
+      }))
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        error: 'Failed to compare networks',
+        loading: false
+      }))
+    }
+  }, [chain?.id, state.settings.gasLimit])
+
+  // Calculate estimated cost and time
+  const calculateEstimates = useCallback(() => {
+    if (!state.gasPrices || !chain?.id) return
+
+    const gasLimit = parseInt(state.settings.gasLimit) || 21000
+    const maxFeePerGas = parseFloat(state.settings.maxFeePerGas) || state.gasPrices.standard
+    const maxPriorityFeePerGas = parseFloat(state.settings.maxPriorityFeePerGas) || (state.gasPrices.standard * 0.1)
+
+    // Calculate total gas cost
+    const totalGasCost = (maxFeePerGas + maxPriorityFeePerGas) * gasLimit
+    const nativeCost = totalGasCost / 1e18
+
+    // Estimate USD cost (mock price for now)
+    const tokenPrice = chain.id === 1 ? 2000 : chain.id === 137 ? 0.8 : chain.id === 56 ? 300 : 2000
+    const usdCost = nativeCost * tokenPrice
+
+    // Estimate time based on priority fee
+    let estimatedTime = '~30 seconds'
+    if (maxPriorityFeePerGas >= state.gasPrices.rapid) {
+      estimatedTime = '~15 seconds'
+    } else if (maxPriorityFeePerGas >= state.gasPrices.fast) {
+      estimatedTime = '~30 seconds'
+    } else if (maxPriorityFeePerGas >= state.gasPrices.standard) {
+      estimatedTime = '~2 minutes'
+    } else {
+      estimatedTime = '~5 minutes'
+    }
+
+    // Generate tips
+    const tips = getGasOptimizationTips(chain.id, state.gasPrices, gasLimit)
+
+    setState(prev => ({
+      ...prev,
+      estimatedCost: { usd: usdCost, native: nativeCost },
+      estimatedTime,
+      tips
+    }))
+  }, [state.gasPrices, state.settings, chain?.id])
+
+  // Get block information for EIP-1559
+  const getBlockInfo = useCallback(async () => {
+    if (!publicClient) return null
+
+    try {
+      const block = await publicClient.getBlock()
+      return {
+        baseFeePerGas: block.baseFeePerGas,
+        gasLimit: block.gasLimit,
+        gasUsed: block.gasUsed
+      }
+    } catch (error) {
+      console.error('Failed to get block info:', error)
+      return null
+    }
+  }, [publicClient])
+
+  // Suggest optimal gas settings
+  const suggestOptimalSettings = useCallback(() => {
+    if (!state.gasPrices || !chain?.id) return
+
+    const blockInfo = getBlockInfo()
+    
+    // For EIP-1559 chains, use base fee + priority fee
+    if (chain.id === 1) { // Ethereum
+      const baseFee = state.gasPrices.baseFee || state.gasPrices.standard
+      const priorityFee = state.gasPrices.priorityFee || (state.gasPrices.standard * 0.1)
+      
+      updateSettings({
+        maxFeePerGas: (baseFee * 1.2).toString(), // 20% buffer
+        maxPriorityFeePerGas: priorityFee.toString(),
+        preset: 'custom'
+      })
+    } else {
+      // For non-EIP-1559 chains, use legacy gas price
+      updateSettings({
+        maxFeePerGas: state.gasPrices.standard.toString(),
+        maxPriorityFeePerGas: '0',
+        preset: 'standard'
+      })
+    }
+  }, [state.gasPrices, chain?.id, updateSettings, getBlockInfo])
+
+  // Effects
+  useEffect(() => {
+    fetchCurrentGasPrices()
+  }, [fetchCurrentGasPrices])
+
+  useEffect(() => {
+    calculateEstimates()
+  }, [calculateEstimates])
+
+  useEffect(() => {
+    // Auto-compare networks when gas prices change
+    if (state.gasPrices) {
+      compareNetworks()
+    }
+  }, [state.gasPrices, compareNetworks])
+
+  return {
+    // State
+    ...state,
+    
+    // Actions
+    updateSettings,
+    updateSettingsFromPreset,
+    compareNetworks,
+    suggestOptimalSettings,
+    getBlockInfo,
+    
+    // Computed values
+    isEIP1559: chain?.id === 1,
+    currentNetwork: chain,
+    
+    // Presets
+    presets: {
+      slow: { label: 'Slow', time: '~5 min', cost: 'Lowest' },
+      standard: { label: 'Standard', time: '~2 min', cost: 'Normal' },
+      fast: { label: 'Fast', time: '~30 sec', cost: 'Higher' },
+      rapid: { label: 'Rapid', time: '~15 sec', cost: 'Highest' }
+    }
+  }
+} 

@@ -1,0 +1,52 @@
+{
+  "timestamp": "2025-09-12T18:24:27.824Z",
+  "deployer": "0xF53Bedb68675e3B8221a8bf351C2892Bae89Aef4",
+  "deploymentResults": {
+    "SHAH/USDT": {
+      "pairAddress": "0x0F1fbE452618fFc8ddb6097C2ff96f1c77BCA45C",
+      "status": "deployed",
+      "txHash": "0xd249cdc5e62d1c99d670d4d1eb2eec9cd8d41906003d5e5e31f7aa3ad5150e5c"
+    },
+    "SHAH/DAI": {
+      "status": "failed",
+      "error": "already known"
+    },
+    "SHAH/ETH": {
+      "status": "failed",
+      "error": "already known"
+    }
+  },
+  "liquidityResults": {
+    "SHAH/USDT": {
+      "status": "failed",
+      "error": "could not decode result data (value=\"0x\", info={ \"method\": \"getReserves\", \"signature\": \"getReserves()\" }, code=BAD_DATA, version=6.15.0)"
+    },
+    "SHAH/DAI": {
+      "status": "skipped",
+      "reason": "pair deployment failed"
+    },
+    "SHAH/ETH": {
+      "status": "skipped",
+      "reason": "pair deployment failed"
+    }
+  },
+  "oracleResults": {
+    "SHAH/USDT": {
+      "status": "skipped",
+      "reason": "liquidity addition failed"
+    },
+    "SHAH/DAI": {
+      "status": "skipped",
+      "reason": "liquidity addition failed"
+    },
+    "SHAH/ETH": {
+      "status": "skipped",
+      "reason": "liquidity addition failed"
+    }
+  },
+  "configuration": {
+    "factory": "0x6943c5d80d4FBc2fC351E40C8f469C3B0E98a204",
+    "oracle": "0x3712f346f2538E2101D38F23db1B7aC382eAD30D",
+    "shahToken": "0x6E0cFA42F797E316ff147A21f7F1189cd610ede8"
+  }
+}

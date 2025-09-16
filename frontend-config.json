@@ -1,0 +1,31 @@
+{
+  "network": "mainnet",
+  "chainId": 1,
+  "contracts": {
+    "router": "0x791c34Df045071eB9896DAfA57e3db46CBEBA11b",
+    "routerV3": "0x791c34Df045071eB9896DAfA57e3db46CBEBA11b",
+    "factory": "0xcE9A12D1151E6776c2da10126997c47c85Cedd48",
+    "factoryV3": "0xcE9A12D1151E6776c2da10126997c47c85Cedd48",
+    "oracle": "0xDB4b7d4af3f0A8c0722719023c0303CA2a9BBa52",
+    "shah": "0x6E0cFA42F797E316ff147A21f7F1189cd610ede8",
+    "staking": "0xe6d1b29ccfd7b65c94d30cc22db8be88629ccc00",
+    "autoClaim": "0x59d4De06A62C7c7EEFC9eFee70665E4e55c84095",
+    "treasury": "0xF53Bedb68675e3B8221a8bf351C2892Bae89Aef4"
+  },
+  "tokens": {
+    "SHAH": "0x6E0cFA42F797E316ff147A21f7F1189cd610ede8",
+    "WETH": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    "USDC": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "USDT": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+    "DAI": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+  },
+  "pairs": {
+    "SHAH-ETH": "0x35582bc7582a5E4950f8A239709dcc1356719ca0",
+    "SHAH-USDC": "0x6f31E71925572E51c38c468188aAE117c993f6F8",
+    "SHAH-USDT": "0x85F618962C57E0420128388b45Fae9a9C5f989d0",
+    "SHAH-DAI": "0x3948CfA4f3d2d637DdcE8F9F09524e8D9dEe3431"
+  },
+  "rpcUrl": "https://ethereum-rpc.publicnode.com",
+  "blockExplorer": "https://etherscan.io",
+  "updatedAt": "2025-09-14T01:10:00.000Z"
+}

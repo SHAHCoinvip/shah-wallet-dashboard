@@ -1,0 +1,16 @@
+npx hardhat compile
+npx hardhat run scripts/configure-router.cjs --network mainnet
+update-env.bat
+powershell -Command "(Get-Content .env.local) -replace 'NEXT_PUBLIC_SHAHSWAP_ORACLE=.*', 'NEXT_PUBLIC_SHAHSWAP_ORACLE=0xDB4b7d4af3f0A8c0722719023c0303CA2a9BBa52' | Set-Content .env.local"
+type shahswap-deployment.json
+Get-Content shahswap-deployment.json
+npx hardhat run scripts/deploy-router.cjs --network mainnet
+npx hardhat run scripts/deploy-with-gas.cjs --network localhost
+node --version
+npx hardhat run scripts/diagnose.cjs --network mainnet
+npx hardhat run scripts/deploy-simple.cjs --network mainnet
+node --version
+npx hardhat run scripts/deployShahSwapUpgrades.cjs --network mainnet
+taskkill /F /IM node.exe
+npx hardhat run scripts/test-signer.cjs --network localhost
+npx hardhat run scripts/test-signer.cjs --network mainnet

@@ -1,0 +1,41 @@
+{
+  "timestamp": "2025-09-12T17:26:01.427Z",
+  "deployer": "0xF53Bedb68675e3B8221a8bf351C2892Bae89Aef4",
+  "liquidityResults": {
+    "SHAH/USDT": {
+      "status": "failed",
+      "error": "could not decode result data (value=\"0x\", info={ \"method\": \"token0\", \"signature\": \"token0()\" }, code=BAD_DATA, version=6.15.0)"
+    },
+    "SHAH/DAI": {
+      "status": "failed",
+      "error": "could not decode result data (value=\"0x\", info={ \"method\": \"token0\", \"signature\": \"token0()\" }, code=BAD_DATA, version=6.15.0)"
+    },
+    "SHAH/ETH": {
+      "status": "failed",
+      "error": "could not decode result data (value=\"0x\", info={ \"method\": \"token0\", \"signature\": \"token0()\" }, code=BAD_DATA, version=6.15.0)"
+    }
+  },
+  "oracleResults": {
+    "SHAH/USDT": {
+      "status": "skipped",
+      "reason": "liquidity addition failed"
+    },
+    "SHAH/DAI": {
+      "status": "skipped",
+      "reason": "liquidity addition failed"
+    },
+    "SHAH/ETH": {
+      "status": "skipped",
+      "reason": "liquidity addition failed"
+    }
+  },
+  "configuration": {
+    "routerV2": "0x3f21A2c05FB60CB4feE11435BcE32d272A8cd06C",
+    "oracle": "0x3712f346f2538E2101D38F23db1B7aC382eAD30D",
+    "factory": "0x6943c5d80d4FBc2fC351E40C8f469C3B0E98a204",
+    "shahToken": "0x6E0cFA42F797E316ff147A21f7F1189cd610ede8",
+    "targetShahPrice": 3,
+    "slippageTolerance": 0.01,
+    "deadline": 1757699137
+  }
+}

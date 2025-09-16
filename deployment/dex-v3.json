@@ -1,0 +1,25 @@
+{
+  "network": "mainnet",
+  "timestamp": "2025-09-14T00:45:29.779Z",
+  "deployer": "0xF53Bedb68675e3B8221a8bf351C2892Bae89Aef4",
+  "contracts": {
+    "ShahSwapFactoryV3": {
+      "address": "0xcE9A12D1151E6776c2da10126997c47c85Cedd48",
+      "constructorArgs": []
+    },
+    "ShahSwapRouterV3": {
+      "address": "0x791c34Df045071eB9896DAfA57e3db46CBEBA11b",
+      "constructorArgs": [
+        "0xcE9A12D1151E6776c2da10126997c47c85Cedd48",
+        "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        "0xDB4b7d4af3f0A8c0722719023c0303CA2a9BBa52"
+      ]
+    }
+  },
+  "configuration": {
+    "WETH": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    "ORACLE": "0xDB4b7d4af3f0A8c0722719023c0303CA2a9BBa52",
+    "TREASURY": "0xF53Bedb68675e3B8221a8bf351C2892Bae89Aef4",
+    "INIT_CODE_PAIR_HASH": "0x5d59ee5b4a031065f4eea90c908632a8d5368f79ae9915560d3359be24de471c"
+  }
+}

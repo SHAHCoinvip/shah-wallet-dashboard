@@ -1,0 +1,29 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/price",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/factory",
+      "schedule": "*/2 * * * *"
+    },
+    {
+      "path": "/api/cron/registry",
+      "schedule": "*/2 * * * *"
+    },
+    {
+      "path": "/api/cron/token-alerts",
+      "schedule": "*/3 * * * *"
+    },
+    {
+      "path": "/api/cron/broadcast",
+      "schedule": "*/1 * * * *"
+    }
+  ],
+  "functions": {
+    "src/app/api/cron/**/*.ts": {
+      "maxDuration": 30
+    }
+  }
+}

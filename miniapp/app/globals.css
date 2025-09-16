@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --tg-bg-color: #000000;
+  --tg-text-color: #ffffff;
+  --tg-hint-color: #999999;
+  --tg-link-color: #2481cc;
+  --tg-button-color: #2481cc;
+  --tg-button-text-color: #ffffff;
+  --tg-secondary-bg-color: #1a1a1a;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  background-color: var(--tg-bg-color);
+  color: var(--tg-text-color);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Telegram WebApp specific styles */
+.telegram-webapp {
+  background-color: var(--tg-bg-color);
+  color: var(--tg-text-color);
+}
+
+/* Glassmorphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Animation classes */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Mini-App specific styles */
+.mini-app-container {
+  min-height: 100vh;
+  padding: 16px;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.mini-card {
+  @apply glass rounded-xl p-4 mb-4 transition-all duration-200;
+}
+
+.mini-card:hover {
+  @apply transform scale-[1.02];
+}
+
+.mini-button {
+  @apply bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-semibold py-3 px-6 rounded-xl transition-all duration-200;
+}
+
+.mini-button:hover {
+  @apply transform scale-105 shadow-lg;
+}
+
+.mini-button:active {
+  @apply transform scale-95;
+}
+
+/* Responsive adjustments for Mini-App */
+@media (max-width: 480px) {
+  .mini-app-container {
+    padding: 12px;
+  }
+  
+  .mini-card {
+    @apply p-3 mb-3;
+  }
+  
+  .mini-button {
+    @apply py-2.5 px-4;
+  }
+} 

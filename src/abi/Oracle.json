@@ -1,0 +1,29 @@
+[
+  {
+    "type": "function",
+    "name": "getShahUsdPrice",
+    "inputs": [],
+    "outputs": [
+      { "name": "", "type": "uint256" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPriceInUSD",
+    "inputs": [],
+    "outputs": [
+      { "name": "", "type": "uint256" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getLatestPrice",
+    "inputs": [],
+    "outputs": [
+      { "name": "", "type": "uint256" }
+    ],
+    "stateMutability": "view"
+  }
+]

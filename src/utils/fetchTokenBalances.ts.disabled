@@ -1,0 +1,61 @@
+// ✅ utils/fetchTokenBalances.ts
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'wagmi/chains'
+import { erc20ABI } from 'wagmi'
+
+const INFURA_URL = 'https://mainnet.infura.io/v3/73f72d4ab51a40c183b3eeeb8103644f'
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(INFURA_URL),
+})
+
+const tokenList = [
+  {
+    address: '0x6E0cFA42F797E316ff147A21f7F1189cd610ede8',
+    symbol: 'SHAH',
+    name: 'SHAH Coin',
+    decimals: 18,
+    logoURI: '/logos/shah.png',
+  },
+  {
+    address: '0x9aD1EE5125851D47863edef19A0Bce3B57F6bD9F',
+    symbol: 'RADVERS',
+    name: 'Radvers Token',
+    decimals: 18,
+    logoURI: '/logos/radvers.png',
+  },
+]
+
+export async function fetchEthBalance(address: string): Promise<string> {
+  const balance = await client.getBalance({ address })
+  return (Number(balance) / 1e18).toFixed(4)
+}
+
+export async function fetchErc20Balances(address: string) {
+  const results = await Promise.all(
+    tokenList.map(async (token) => {
+      const balance = await client.readContract({
+        address: token.address as `0x${string}`,
+        abi: erc20ABI,
+        functionName: 'balanceOf',
+        args: [address],
+      })
+
+      const normalized = Number(balance) / 10 ** token.decimals
+
+      // 🔥 Add basic mock USD values for now (optional API for real)
+      const usdRates: Record<string, number> = {
+        SHAH: 5.0,
+        RADVERS: 0.01,
+      }
+
+      return {
+        ...token,
+        balance: normalized.toFixed(4),
+        usdValue: normalized * (usdRates[token.symbol] || 0),
+      }
+    })
+  )
+
+  return results
+}

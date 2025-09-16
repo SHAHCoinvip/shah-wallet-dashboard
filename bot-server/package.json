@@ -1,0 +1,29 @@
+{
+  "name": "shah-wallet-bot-server",
+  "version": "1.0.0",
+  "description": "Telegram bot server for SHAH Wallet",
+  "main": "dist/bot.js",
+  "type": "commonjs",
+  "scripts": {
+    "build": "npx tsc",
+    "start": "node dist/bot.js",
+    "dev": "ts-node bot.ts",
+    "test": "node test-bot.js"
+  },
+  "author": "Radmazon",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "bip39": "^3.1.0",
+    "dotenv": "^16.3.1",
+    "ethers": "^6.15.0",
+    "hdkey": "^2.1.0",
+    "telegraf": "^4.15.6",
+    "zustand": "^5.0.7"
+  },
+  "devDependencies": {
+    "@types/node": "^20.5.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}

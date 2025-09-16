@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-09-13T12:03:17.552Z",
+  "network": "mainnet",
+  "deployer": "0xF53Bedb68675e3B8221a8bf351C2892Bae89Aef4",
+  "contractName": "ShahSwapRouterVS2",
+  "contractAddress": "0x49CC894c82d19FdcBDedfbF98832553749e2F73E",
+  "constructorArgs": {
+    "factory": "0x6943c5d80d4FBc2fC351E40C8f469C3B0E98a204",
+    "weth": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+  },
+  "transactionHash": "0xb89564b6ed46fff947cbcf8382a224014469293f1b5b5342b17426be66ef3d42",
+  "blockNumber": 23354022,
+  "gasUsed": "1576443",
+  "status": "SUCCESS",
+  "verified": true,
+  "verifiedAt": "2025-09-13T13:11:47.858Z"
+}

@@ -1,0 +1,51 @@
+{
+  "timestamp": "2025-09-12T18:04:44.871Z",
+  "deployer": "0xF53Bedb68675e3B8221a8bf351C2892Bae89Aef4",
+  "pairResults": {
+    "SHAH/USDT": {
+      "status": "failed",
+      "error": "execution reverted: ShahSwap: PAIR_EXISTS"
+    },
+    "SHAH/DAI": {
+      "status": "failed",
+      "error": "execution reverted: ShahSwap: PAIR_EXISTS"
+    },
+    "SHAH/ETH": {
+      "status": "failed",
+      "error": "execution reverted: ShahSwap: PAIR_EXISTS"
+    }
+  },
+  "liquidityResults": {
+    "SHAH/USDT": {
+      "status": "skipped",
+      "reason": "pair creation failed"
+    },
+    "SHAH/DAI": {
+      "status": "skipped",
+      "reason": "pair creation failed"
+    },
+    "SHAH/ETH": {
+      "status": "skipped",
+      "reason": "pair creation failed"
+    }
+  },
+  "oracleResults": {
+    "SHAH/USDT": {
+      "status": "skipped",
+      "reason": "liquidity addition failed"
+    },
+    "SHAH/DAI": {
+      "status": "skipped",
+      "reason": "liquidity addition failed"
+    },
+    "SHAH/ETH": {
+      "status": "skipped",
+      "reason": "liquidity addition failed"
+    }
+  },
+  "configuration": {
+    "factory": "0x6943c5d80d4FBc2fC351E40C8f469C3B0E98a204",
+    "oracle": "0x3712f346f2538E2101D38F23db1B7aC382eAD30D",
+    "shahToken": "0x6E0cFA42F797E316ff147A21f7F1189cd610ede8"
+  }
+}

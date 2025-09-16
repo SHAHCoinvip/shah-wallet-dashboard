@@ -1,0 +1,23 @@
+{
+  "network": "mainnet",
+  "deployer": "0xF53Bedb68675e3B8221a8bf351C2892Bae89Aef4",
+  "setupTime": "2025-08-29T02:29:38.369Z",
+  "factory": {
+    "address": "0x6943c5d80d4FBc2fC351E40C8f469C3B0E98a204",
+    "feeTo": "0xF53Bedb68675e3B8221a8bf351C2892Bae89Aef4",
+    "feeToSetter": "0xF53Bedb68675e3B8221a8bf351C2892Bae89Aef4"
+  },
+  "pairs": {
+    "SHAH-ETH": "0xedf16bAeC9e63ce65e52d986AB7e583FeDD9374e",
+    "SHAH-USDT": "0x4c741106D435a6167d1117B1f37f1Eb584639C66",
+    "SHAH-DAI": "0x07Dc3fBff2969E3F2c2a438B3D560c9149C3A048"
+  },
+  "tokens": {
+    "SHAH": "0x6E0cFA42F797E316ff147A21f7F1189cd610ede8",
+    "WETH": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    "USDC": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "USDT": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+    "DAI": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+  },
+  "status": "Factory setup complete with LP pairs"
+}

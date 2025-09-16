@@ -1,0 +1,15 @@
+{
+  "contract": "AutoClaimExecutor",
+  "address": "0x59d4De06A62C7c7EEFC9eFee70665E4e55c84095",
+  "network": "mainnet",
+  "deployer": "0xF53Bedb68675e3B8221a8bf351C2892Bae89Aef4",
+  "constructorArgs": {
+    "shahToken": "0x6E0cFA42F797E316ff147A21f7F1189cd610ede8",
+    "stakingContract": "0xe6d1b29ccfd7b65c94d30cc22db8be88629ccc00",
+    "treasury": "0x6E0cFA42F797E316ff147A21f7F1189cd610ede8",
+    "executionFee": "100000000000000000"
+  },
+  "deploymentTime": "2025-08-28T01:21:31.037Z",
+  "blockNumber": 23236299,
+  "transactionHash": "0x82aeec3512170fe0949e0e51a1badcd815a3877dfb9b7b50ea152aa20df48740"
+}

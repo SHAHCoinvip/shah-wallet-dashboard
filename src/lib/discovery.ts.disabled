@@ -1,0 +1,190 @@
+import { ethers } from 'ethers'
+import { erc20ABI } from 'wagmi'
+
+export interface TokenInfo {
+  address: string
+  name?: string
+  symbol?: string
+  deployer: string
+  blockNumber: number
+  createdAt: Date
+  isVerified?: boolean
+}
+
+export interface VerifiedToken {
+  address: string
+  name?: string
+  symbol?: string
+  isVerified: boolean
+}
+
+// Cache for token metadata
+const tokenCache = new Map<string, { name?: string; symbol?: string }>()
+const CACHE_DURATION = 60 * 1000 // 1 minute
+
+export async function getNewTokens(
+  factoryAddress: string,
+  fromBlock?: number,
+  toBlock?: number
+): Promise<TokenInfo[]> {
+  try {
+    const provider = new ethers.BrowserProvider(window.ethereum)
+    
+    // Factory ABI for TokenCreated event
+    const factoryAbi = [
+      'event TokenCreated(address indexed token, string name, string symbol, address indexed owner, uint256 timestamp)'
+    ]
+    
+    const factory = new ethers.Contract(factoryAddress, factoryAbi, provider)
+    
+    // Get current block if not specified
+    if (!toBlock) {
+      toBlock = await provider.getBlockNumber()
+    }
+    
+    // Get events from last 1000 blocks if fromBlock not specified
+    if (!fromBlock) {
+      fromBlock = Math.max(0, toBlock - 1000)
+    }
+    
+    const events = await factory.queryFilter(
+      factory.filters.TokenCreated(),
+      fromBlock,
+      toBlock
+    )
+    
+    const tokens: TokenInfo[] = []
+    
+    for (const event of events) {
+      if (event.args) {
+        const [tokenAddress, name, symbol, owner, timestamp] = event.args
+        
+        tokens.push({
+          address: tokenAddress,
+          name: name || undefined,
+          symbol: symbol || undefined,
+          deployer: owner,
+          blockNumber: event.blockNumber,
+          createdAt: new Date(Number(timestamp) * 1000)
+        })
+      }
+    }
+    
+    // Sort by creation time (newest first)
+    return tokens.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    
+  } catch (error) {
+    console.error('Error fetching new tokens:', error)
+    return []
+  }
+}
+
+export async function getVerifiedTokens(
+  registryAddress: string,
+  page: number = 1,
+  pageSize: number = 20
+): Promise<{ tokens: VerifiedToken[]; total: number }> {
+  try {
+    const provider = new ethers.BrowserProvider(window.ethereum)
+    
+    // Registry ABI for verified tokens
+    const registryAbi = [
+      'function getVerifiedTokens() external view returns (address[] memory)',
+      'function isVerified(address token) external view returns (bool)'
+    ]
+    
+    const registry = new ethers.Contract(registryAddress, registryAbi, provider)
+    
+    // Get all verified tokens
+    const verifiedAddresses = await registry.getVerifiedTokens()
+    
+    const startIndex = (page - 1) * pageSize
+    const endIndex = startIndex + pageSize
+    const paginatedAddresses = verifiedAddresses.slice(startIndex, endIndex)
+    
+    const tokens: VerifiedToken[] = []
+    
+    for (const address of paginatedAddresses) {
+      const tokenInfo = await getTokenMetadata(address)
+      tokens.push({
+        address,
+        name: tokenInfo.name,
+        symbol: tokenInfo.symbol,
+        isVerified: true
+      })
+    }
+    
+    return {
+      tokens,
+      total: verifiedAddresses.length
+    }
+    
+  } catch (error) {
+    console.error('Error fetching verified tokens:', error)
+    return { tokens: [], total: 0 }
+  }
+}
+
+export async function getTokenMetadata(address: string): Promise<{ name?: string; symbol?: string }> {
+  // Check cache first
+  const cacheKey = address.toLowerCase()
+  const cached = tokenCache.get(cacheKey)
+  if (cached) {
+    return cached
+  }
+  
+  try {
+    const provider = new ethers.BrowserProvider(window.ethereum)
+    const token = new ethers.Contract(address, erc20ABI, provider)
+    
+    const [name, symbol] = await Promise.all([
+      token.name().catch(() => undefined),
+      token.symbol().catch(() => undefined)
+    ])
+    
+    const metadata = { name, symbol }
+    tokenCache.set(cacheKey, metadata)
+    
+    // Clear cache after duration
+    setTimeout(() => {
+      tokenCache.delete(cacheKey)
+    }, CACHE_DURATION)
+    
+    return metadata
+    
+  } catch (error) {
+    console.error('Error fetching token metadata:', error)
+    return {}
+  }
+}
+
+export function linkToSwap(tokenAddress: string): string {
+  return `/swap?out=${tokenAddress}`
+}
+
+export function linkToEtherscan(address: string): string {
+  return `https://etherscan.io/token/${address}`
+}
+
+export function linkToEtherscanAddress(address: string): string {
+  return `https://etherscan.io/address/${address}`
+}
+
+export function shortenAddress(address: string, chars: number = 4): string {
+  return `${address.slice(0, chars + 2)}...${address.slice(-chars)}`
+}
+
+export function formatTimeAgo(date: Date): string {
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / (1000 * 60))
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+  
+  if (diffMins < 1) return 'Just now'
+  if (diffMins < 60) return `${diffMins}m ago`
+  if (diffHours < 24) return `${diffHours}h ago`
+  if (diffDays < 7) return `${diffDays}d ago`
+  
+  return date.toLocaleDateString()
+} 

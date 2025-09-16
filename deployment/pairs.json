@@ -1,0 +1,25 @@
+{
+  "network": "mainnet",
+  "timestamp": "2025-09-14T00:34:18.369Z",
+  "factory": "0xcE9A12D1151E6776c2da10126997c47c85Cedd48",
+  "pairs": [
+    {
+      "name": "SHAH/USDT",
+      "address": "0x85F618962C57E0420128388b45Fae9a9C5f989d0",
+      "tokenA": "0x6E0cFA42F797E316ff147A21f7F1189cd610ede8",
+      "tokenB": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+    },
+    {
+      "name": "SHAH/WETH",
+      "address": "0x35582bc7582a5E4950f8A239709dcc1356719ca0",
+      "tokenA": "0x6E0cFA42F797E316ff147A21f7F1189cd610ede8",
+      "tokenB": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+    },
+    {
+      "name": "SHAH/DAI",
+      "address": "0x3948CfA4f3d2d637DdcE8F9F09524e8D9dEe3431",
+      "tokenA": "0x6E0cFA42F797E316ff147A21f7F1189cd610ede8",
+      "tokenB": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "UQ112x112",
+  "sourceName": "contracts/shahswap/ShahSwapPair.sol",
+  "abi": [],
+  "bytecode": "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea264697066735822122014b08156056121b73b1301ffd30809dcbc638f7c27315bad9c030678cfd8e91964736f6c63430008140033",
+  "deployedBytecode": "0x600080fdfea264697066735822122014b08156056121b73b1301ffd30809dcbc638f7c27315bad9c030678cfd8e91964736f6c63430008140033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

@@ -1,0 +1,39 @@
+{
+  "network": "mainnet",
+  "deployer": "0xF53Bedb68675e3B8221a8bf351C2892Bae89Aef4",
+  "deploymentTime": "2025-08-29T03:19:54.235Z",
+  "contracts": {
+    "routerV2": {
+      "address": "0x3f21A2c05FB60CB4feE11435BcE32d272A8cd06C",
+      "factory": "0x6943c5d80d4FBc2fC351E40C8f469C3B0E98a204",
+      "weth": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      "oracle": "0x3712f346f2538E2101D38F23db1B7aC382eAD30D"
+    },
+    "oracle": {
+      "address": "0x3712f346f2538E2101D38F23db1B7aC382eAD30D",
+      "factory": "0x6943c5d80d4FBc2fC351E40C8f469C3B0E98a204",
+      "weth": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+    },
+    "factory": "0x6943c5d80d4FBc2fC351E40C8f469C3B0E98a204",
+    "treasury": "0xF53Bedb68675e3B8221a8bf351C2892Bae89Aef4"
+  },
+  "oracleResults": {
+    "SHAH-ETH": {
+      "status": "FAILED",
+      "error": "execution reverted: Oracle: INSUFFICIENT_LIQUIDITY"
+    },
+    "SHAH-USDC": {
+      "status": "FAILED",
+      "error": "execution reverted: Oracle: INSUFFICIENT_LIQUIDITY"
+    },
+    "SHAH-USDT": {
+      "status": "FAILED",
+      "error": "execution reverted: Oracle: INSUFFICIENT_LIQUIDITY"
+    },
+    "SHAH-DAI": {
+      "status": "FAILED",
+      "error": "execution reverted: Oracle: INSUFFICIENT_LIQUIDITY"
+    }
+  },
+  "status": "SHAH Ecosystem Integration Fixed"
+}
