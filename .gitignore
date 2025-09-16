@@ -44,3 +44,9 @@ next-env.d.ts
 bot-server/shah-nft-metadata/
 
 bot-server/shah-nft-metadata/
+
+# Ignore build outputs and caches
+.next/
+miniapp/.next/
+**/node_modules/
+**/dist/
