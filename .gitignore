@@ -50,3 +50,8 @@ bot-server/shah-nft-metadata/
 miniapp/.next/
 **/node_modules/
 **/dist/
+
+.next/
+miniapp/.next/
+**/node_modules/
+**/dist/
