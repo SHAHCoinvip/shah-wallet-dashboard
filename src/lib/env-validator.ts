@@ -299,12 +299,13 @@ async function validateEnvironment(): Promise<{ isValid: boolean; errors: string
   const errors: string[] = []
   const warnings: string[] = []
 
-  // Check if .env.local exists
+  // Check if we're in production (Vercel) or local development
   const fs = await import('fs')
   const path = await import('path')
   const envPath = path.join(process.cwd(), '.env.local')
+  const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1'
   
-  if (!fs.existsSync(envPath)) {
+  if (!isProduction && !fs.existsSync(envPath)) {
     errors.push(`❌ .env.local file not found at ${envPath}`)
     errors.push(`💡 Please copy env.example to .env.local and fill in your values`)
     return {
