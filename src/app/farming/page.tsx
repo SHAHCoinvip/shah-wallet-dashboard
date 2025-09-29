@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 export const dynamic = 'force-dynamic'
 import { useAccount, useContractRead, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { parseEther, formatEther } from "viem";
-import ShahFarmABI, { ShahFarmAddress } from "@/ABI/ShahFarmABI";
+import ShahFarmABI, { ShahFarmAddress } from "../../ABI/ShahFarmABI";
 import { SHAH_FARM_ADDRESS, POOLS, calculateAPY, formatLPAmount, formatSHAHAmount, validateAmount, parseAmount } from "@/utils/farming";
 
 // Portfolio Summary Component

@@ -1,5 +1,5 @@
 import { parseEther, formatEther } from "viem";
-import { ShahFarmAddress } from "@/ABI/ShahFarmABI";
+import { ShahFarmAddress } from "../ABI/ShahFarmABI";
 
 // Export the farm address for use in components
 export const SHAH_FARM_ADDRESS = ShahFarmAddress;
