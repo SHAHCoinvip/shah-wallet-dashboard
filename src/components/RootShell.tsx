@@ -17,6 +17,7 @@ const navItems = [
   { name: 'Settings', href: '/settings/alerts' },
   { name: 'Shahcoin', href: '/shahcoin-wallet' },
   { name: 'Swap', href: '/swap' },
+  { name: 'Telegram Mini App', href: '/telegram' },
 ]
 
 export default function RootShell({ children }: { children: React.ReactNode }) {
