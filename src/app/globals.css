@@ -2,16 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* Base layer to ensure preflight-like behavior */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    background-color: #030712 !important;
+    color: #ffffff !important;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    min-height: 100vh;
+  }
+
+  /* Normalize links */
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  /* Normalize form elements */
+  input, button, textarea, select {
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+  }
+
+  button {
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  /* Normalize lists */
+  ul, ol {
+    list-style: none;
+  }
 }
 
-html,
-body {
-  background-color: #030712 !important;
-  color: #ffffff !important;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-  min-height: 100vh;
+/* Test component to verify Tailwind utilities work */
+@layer components {
+  .test-badge {
+    @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-500 text-white;
+  }
 }

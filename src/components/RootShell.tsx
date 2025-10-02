@@ -26,6 +26,12 @@ export default function RootShell({ children }: { children: React.ReactNode }) {
   return (
     <Providers>
       <Toaster position="top-center" />
+      
+      {/* Test badge to verify Tailwind utilities work */}
+      <div className="fixed top-4 right-4 z-50">
+        <span className="test-badge">Tailwind Test</span>
+      </div>
+      
       <div className="flex bg-gray-950 text-white">
         <aside className="w-56 min-h-screen bg-gray-900 p-4 border-r border-gray-800">
           <h2 className="text-xl font-bold mb-6 text-yellow-400">SHAH Wallet</h2>
