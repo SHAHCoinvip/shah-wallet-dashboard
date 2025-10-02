@@ -105,7 +105,7 @@ const MOCK_DROPS: LaunchpadDrop[] = [
     status: 'upcoming',
     startAt: new Date(Date.now() + 86400000 * 3).toISOString(), // Starts in 3 days
     endAt: new Date(Date.now() + 86400000 * 10).toISOString(), // Ends in 10 days
-    priceUSD: 0.05,
+    priceUSD: 1.72,
     maxSupply: 1000000,
     currentSupply: 0,
     maxPerWallet: 10000,
@@ -249,7 +249,7 @@ async function getShahPriceForDrop(): Promise<number> {
     return formatShahPrice(priceData as bigint)
   } catch (error) {
     console.error('Error fetching SHAH price:', error)
-    return 0.05 // Fallback price
+    return 1.72 // Fallback price
   }
 }
 

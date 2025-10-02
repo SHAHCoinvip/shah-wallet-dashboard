@@ -30,25 +30,42 @@ export default function ShahcoinPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.05 }}
-          className="bg-gray-900/60 rounded-2xl border border-white/10 p-6"
+          className="card p-8"
         >
-          <h2 className="text-2xl font-bold mb-4">Download Qt Wallet</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <h2 className="text-3xl font-bold mb-6 text-gradient">Download Qt Wallet</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <a
-              className="mini-button text-center"
+              className="btn-primary text-center animate-float"
               href="https://github.com/shahcoin/releases/windows"
               target="_blank" rel="noopener noreferrer"
-            >Windows</a>
+            >
+              <div className="flex items-center justify-center gap-2">
+                <span>🪟</span>
+                <span>Windows</span>
+              </div>
+            </a>
             <a
-              className="mini-button text-center"
+              className="btn-primary text-center animate-float"
               href="https://github.com/shahcoin/releases/macos"
               target="_blank" rel="noopener noreferrer"
-            >macOS</a>
+              style={{ animationDelay: '0.2s' }}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <span>🍎</span>
+                <span>macOS</span>
+              </div>
+            </a>
             <a
-              className="mini-button text-center"
+              className="btn-primary text-center animate-float"
               href="https://github.com/shahcoin/releases/linux"
               target="_blank" rel="noopener noreferrer"
-            >Linux</a>
+              style={{ animationDelay: '0.4s' }}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <span>🐧</span>
+                <span>Linux</span>
+              </div>
+            </a>
           </div>
         </motion.section>
 
@@ -57,15 +74,23 @@ export default function ShahcoinPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="bg-gray-900/60 rounded-2xl border border-white/10 p-6"
+          className="card p-8"
         >
-          <h2 className="text-2xl font-bold mb-2">Developer SDK</h2>
-          <p className="text-gray-300 mb-4">Build on Shahcoin with our developer SDK to create apps, integrations, and tools.</p>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <span className="text-white text-xl">⚡</span>
+            </div>
+            <h2 className="text-3xl font-bold text-gradient-blue">Developer SDK</h2>
+          </div>
+          <p className="text-gray-300 mb-6 text-lg">Build on Shahcoin with our developer SDK to create apps, integrations, and tools.</p>
           <a
-            className="mini-button inline-block"
+            className="btn-accent inline-flex items-center gap-2"
             href="https://github.com/shahcoin/docs"
             target="_blank" rel="noopener noreferrer"
-          >Read Developer Docs</a>
+          >
+            <span>📚</span>
+            <span>Read Developer Docs</span>
+          </a>
         </motion.section>
 
         {/* 4) Explorer (ShahScan) */}
@@ -73,14 +98,22 @@ export default function ShahcoinPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.15 }}
-          className="bg-gray-900/60 rounded-2xl border border-white/10 p-6"
+          className="card p-8"
         >
-          <h2 className="text-2xl font-bold mb-2">Explorer</h2>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-cyan-500 rounded-lg flex items-center justify-center">
+              <span className="text-white text-xl">🔍</span>
+            </div>
+            <h2 className="text-3xl font-bold text-gradient">Explorer</h2>
+          </div>
           <a
-            className="mini-button inline-block"
+            className="btn-secondary inline-flex items-center gap-2"
             href="https://scan.shahcoin.net"
             target="_blank" rel="noopener noreferrer"
-          >Open ShahScan Explorer</a>
+          >
+            <span>🌐</span>
+            <span>Open ShahScan Explorer</span>
+          </a>
         </motion.section>
 
         {/* 5) Chain Features Grid */}
@@ -88,29 +121,56 @@ export default function ShahcoinPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="bg-gray-900/60 rounded-2xl border border-white/10 p-6"
+          className="card p-8"
         >
-          <h2 className="text-2xl font-bold mb-4">Chain Features</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="mini-card">
-              <p className="text-sm text-gray-400">Block Time</p>
-              <p className="text-lg font-semibold">150 sec</p>
+          <h2 className="text-3xl font-bold mb-8 text-gradient">Chain Features</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="stat-card">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center">
+                  <span className="text-black text-lg">⏱️</span>
+                </div>
+                <p className="text-sm text-gray-400 font-medium">Block Time</p>
+              </div>
+              <p className="text-xl font-bold text-white">150 sec</p>
             </div>
-            <div className="mini-card">
-              <p className="text-sm text-gray-400">Consensus</p>
-              <p className="text-lg font-semibold">Multi-algo PoW (Scrypt + Groestl planned)</p>
+            <div className="stat-card">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-lg">⚡</span>
+                </div>
+                <p className="text-sm text-gray-400 font-medium">Consensus</p>
+              </div>
+              <p className="text-lg font-bold text-white">Multi-algo PoW</p>
+              <p className="text-sm text-gray-400">(Scrypt + Groestl planned)</p>
             </div>
-            <div className="mini-card">
-              <p className="text-sm text-gray-400">Halving</p>
-              <p className="text-lg font-semibold">Standard halving schedule</p>
+            <div className="stat-card">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-lg">📈</span>
+                </div>
+                <p className="text-sm text-gray-400 font-medium">Halving</p>
+              </div>
+              <p className="text-lg font-bold text-white">Standard halving schedule</p>
             </div>
-            <div className="mini-card">
-              <p className="text-sm text-gray-400">Security</p>
-              <p className="text-lg font-semibold">Max reorg depth, miner whitelist, replay protection</p>
+            <div className="stat-card">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-pink-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-lg">🛡️</span>
+                </div>
+                <p className="text-sm text-gray-400 font-medium">Security</p>
+              </div>
+              <p className="text-lg font-bold text-white">Advanced Protection</p>
+              <p className="text-sm text-gray-400">Max reorg depth, miner whitelist, replay protection</p>
             </div>
-            <div className="mini-card">
-              <p className="text-sm text-gray-400">PoS</p>
-              <p className="text-lg font-semibold">Future roadmap</p>
+            <div className="stat-card">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-lg">🚀</span>
+                </div>
+                <p className="text-sm text-gray-400 font-medium">PoS</p>
+              </div>
+              <p className="text-lg font-bold text-white">Future roadmap</p>
             </div>
           </div>
         </motion.section>
@@ -120,13 +180,48 @@ export default function ShahcoinPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.25 }}
-          className="rounded-2xl p-6 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 border border-white/10"
+          className="card-glow p-8"
         >
-          <h2 className="text-2xl font-bold mb-4">Get Started</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <a className="mini-button text-center" href="https://github.com/shahcoin/releases" target="_blank" rel="noopener noreferrer">Download Wallet</a>
-            <a className="mini-button text-center" href="https://scan.shahcoin.net" target="_blank" rel="noopener noreferrer">View Explorer</a>
-            <a className="mini-button text-center" href="https://github.com/shahcoin/docs" target="_blank" rel="noopener noreferrer">Read Docs</a>
+          <div className="text-center mb-8">
+            <h2 className="text-4xl font-bold mb-4 text-gradient">Get Started</h2>
+            <p className="text-xl text-gray-300">Join the SHAHCOIN ecosystem today</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <a 
+              className="btn-primary text-center animate-float" 
+              href="https://github.com/shahcoin/releases" 
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              <div className="flex items-center justify-center gap-2">
+                <span>💾</span>
+                <span>Download Wallet</span>
+              </div>
+            </a>
+            <a 
+              className="btn-secondary text-center animate-float" 
+              href="https://scan.shahcoin.net" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{ animationDelay: '0.2s' }}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <span>🔍</span>
+                <span>View Explorer</span>
+              </div>
+            </a>
+            <a 
+              className="btn-accent text-center animate-float" 
+              href="https://github.com/shahcoin/docs" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{ animationDelay: '0.4s' }}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <span>📖</span>
+                <span>Read Docs</span>
+              </div>
+            </a>
           </div>
         </motion.section>
       </div>

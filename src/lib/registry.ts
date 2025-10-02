@@ -44,10 +44,10 @@ export async function getShahPriceUsd(): Promise<number> {
     
     // Convert from oracle format (usually 8 decimals) to USD
     const price = Number(formatUnits(priceData as bigint, 8))
-    return price > 0 ? price : 0.05 // Fallback price
+    return price > 0 ? price : 1.72 // Fallback price
   } catch (error) {
     console.error('Error fetching SHAH price:', error)
-    return 0.05 // Fallback price
+    return 1.72 // Fallback price
   }
 }
 

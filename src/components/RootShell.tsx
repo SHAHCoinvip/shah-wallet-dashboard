@@ -40,8 +40,8 @@ export default function RootShell({ children }: { children: React.ReactNode }) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`py-2 px-4 rounded-lg transition-all font-medium hover:bg-yellow-500 hover:text-black ${
-                  pathname === item.href ? 'bg-yellow-400 text-black' : 'text-white'
+                className={`nav-item ${
+                  pathname === item.href ? 'nav-item-active' : 'text-white'
                 }`}
               >
                 {item.name}

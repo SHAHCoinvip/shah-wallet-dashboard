@@ -45,15 +45,15 @@ export interface TokenCreationArgs {
  * This will be called from React components using wagmi hooks
  */
 export function formatShahPrice(priceData: bigint | undefined, decimals: number = 8): number {
-  if (!priceData) return 0.05 // Fallback price
+  if (!priceData) return 1.72 // Fallback price
   
   try {
     // Convert from oracle format (usually 8 decimals) to USD
     const price = Number(formatUnits(priceData, decimals))
-    return price > 0 ? price : 0.05
+    return price > 0 ? price : 1.72
   } catch (error) {
     console.error('Error formatting SHAH price:', error)
-    return 0.05
+    return 1.72
   }
 }
 

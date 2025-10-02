@@ -494,61 +494,137 @@ export default function Dashboard() {
 
             {/* Qt Wallet Downloads */}
             <div className="mini-card">
-              <h3 className="text-lg font-semibold mb-3">Download Qt Wallet</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <a className="mini-button text-center" href="https://github.com/shahcoin/releases/windows" target="_blank" rel="noopener noreferrer">Windows</a>
-                <a className="mini-button text-center" href="https://github.com/shahcoin/releases/macos" target="_blank" rel="noopener noreferrer">macOS</a>
-                <a className="mini-button text-center" href="https://github.com/shahcoin/releases/linux" target="_blank" rel="noopener noreferrer">Linux</a>
+              <h3 className="text-2xl font-bold mb-4 text-gradient">Download Qt Wallet</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <a className="btn-primary text-center animate-float" href="https://github.com/shahcoin/releases/windows" target="_blank" rel="noopener noreferrer">
+                  <div className="flex items-center justify-center gap-2">
+                    <span>🪟</span>
+                    <span>Windows</span>
+                  </div>
+                </a>
+                <a className="btn-primary text-center animate-float" href="https://github.com/shahcoin/releases/macos" target="_blank" rel="noopener noreferrer" style={{ animationDelay: '0.2s' }}>
+                  <div className="flex items-center justify-center gap-2">
+                    <span>🍎</span>
+                    <span>macOS</span>
+                  </div>
+                </a>
+                <a className="btn-primary text-center animate-float" href="https://github.com/shahcoin/releases/linux" target="_blank" rel="noopener noreferrer" style={{ animationDelay: '0.4s' }}>
+                  <div className="flex items-center justify-center gap-2">
+                    <span>🐧</span>
+                    <span>Linux</span>
+                  </div>
+                </a>
               </div>
             </div>
 
             {/* SDK Showcase */}
             <div className="mini-card">
-              <h3 className="text-lg font-semibold mb-2">Developer SDK</h3>
-              <p className="text-gray-400 mb-3">Build on Shahcoin with our developer SDK to create apps, integrations, and tools.</p>
-              <a className="mini-button" href="https://github.com/shahcoin/docs" target="_blank" rel="noopener noreferrer">Read Developer Docs</a>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-lg">⚡</span>
+                </div>
+                <h3 className="text-2xl font-bold text-gradient-blue">Developer SDK</h3>
+              </div>
+              <p className="text-gray-400 mb-4">Build on Shahcoin with our developer SDK to create apps, integrations, and tools.</p>
+              <a className="btn-accent inline-flex items-center gap-2" href="https://github.com/shahcoin/docs" target="_blank" rel="noopener noreferrer">
+                <span>📚</span>
+                <span>Read Developer Docs</span>
+              </a>
             </div>
 
             {/* Explorer */}
             <div className="mini-card">
-              <h3 className="text-lg font-semibold mb-2">Explorer</h3>
-              <a className="mini-button" href="https://scan.shahcoin.net" target="_blank" rel="noopener noreferrer">Open ShahScan Explorer</a>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-lg">🔍</span>
+                </div>
+                <h3 className="text-2xl font-bold text-gradient">Explorer</h3>
+              </div>
+              <a className="btn-secondary inline-flex items-center gap-2" href="https://scan.shahcoin.net" target="_blank" rel="noopener noreferrer">
+                <span>🌐</span>
+                <span>Open ShahScan Explorer</span>
+              </a>
             </div>
 
             {/* Features Grid */}
             <div className="mini-card">
-              <h3 className="text-lg font-semibold mb-3">Chain Features</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="p-3 rounded-lg bg-gray-800/50">
-                  <p className="text-xs text-gray-400">Block Time</p>
-                  <p className="text-base font-semibold">150 sec</p>
+              <h3 className="text-2xl font-bold mb-6 text-gradient">Chain Features</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="stat-card">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center">
+                      <span className="text-black text-sm">⏱️</span>
+                    </div>
+                    <p className="text-sm text-gray-400 font-medium">Block Time</p>
+                  </div>
+                  <p className="text-lg font-bold text-white">150 sec</p>
                 </div>
-                <div className="p-3 rounded-lg bg-gray-800/50">
-                  <p className="text-xs text-gray-400">Consensus</p>
-                  <p className="text-base font-semibold">Multi-algo PoW (Scrypt + Groestl planned)</p>
+                <div className="stat-card">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-sm">⚡</span>
+                    </div>
+                    <p className="text-sm text-gray-400 font-medium">Consensus</p>
+                  </div>
+                  <p className="text-lg font-bold text-white">Multi-algo PoW</p>
+                  <p className="text-xs text-gray-400">(Scrypt + Groestl planned)</p>
                 </div>
-                <div className="p-3 rounded-lg bg-gray-800/50">
-                  <p className="text-xs text-gray-400">Halving</p>
-                  <p className="text-base font-semibold">Standard halving schedule</p>
+                <div className="stat-card">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-sm">📈</span>
+                    </div>
+                    <p className="text-sm text-gray-400 font-medium">Halving</p>
+                  </div>
+                  <p className="text-lg font-bold text-white">Standard halving schedule</p>
                 </div>
-                <div className="p-3 rounded-lg bg-gray-800/50">
-                  <p className="text-xs text-gray-400">Security</p>
-                  <p className="text-base font-semibold">Max reorg depth, miner whitelist, replay protection</p>
+                <div className="stat-card">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-red-500 to-pink-500 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-sm">🛡️</span>
+                    </div>
+                    <p className="text-sm text-gray-400 font-medium">Security</p>
+                  </div>
+                  <p className="text-lg font-bold text-white">Advanced Protection</p>
+                  <p className="text-xs text-gray-400">Max reorg depth, miner whitelist, replay protection</p>
                 </div>
-                <div className="p-3 rounded-lg bg-gray-800/50">
-                  <p className="text-xs text-gray-400">PoS</p>
-                  <p className="text-base font-semibold">Future roadmap</p>
+                <div className="stat-card">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-sm">🚀</span>
+                    </div>
+                    <p className="text-sm text-gray-400 font-medium">PoS</p>
+                  </div>
+                  <p className="text-lg font-bold text-white">Future roadmap</p>
                 </div>
               </div>
             </div>
 
             {/* Get Started CTA */}
             <div className="mini-card">
-              <h3 className="text-lg font-semibold mb-3">Get Started</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <a className="mini-button text-center" href="https://github.com/shahcoin/releases" target="_blank" rel="noopener noreferrer">Download Wallet</a>
-                <a className="mini-button text-center" href="https://scan.shahcoin.net" target="_blank" rel="noopener noreferrer">View Explorer</a>
-                <a className="mini-button text-center" href="https://github.com/shahcoin/docs" target="_blank" rel="noopener noreferrer">Read Docs</a>
+              <div className="text-center mb-6">
+                <h3 className="text-3xl font-bold mb-2 text-gradient">Get Started</h3>
+                <p className="text-gray-400">Join the SHAHCOIN ecosystem today</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <a className="btn-primary text-center animate-float" href="https://github.com/shahcoin/releases" target="_blank" rel="noopener noreferrer">
+                  <div className="flex items-center justify-center gap-2">
+                    <span>💾</span>
+                    <span>Download Wallet</span>
+                  </div>
+                </a>
+                <a className="btn-secondary text-center animate-float" href="https://scan.shahcoin.net" target="_blank" rel="noopener noreferrer" style={{ animationDelay: '0.2s' }}>
+                  <div className="flex items-center justify-center gap-2">
+                    <span>🔍</span>
+                    <span>View Explorer</span>
+                  </div>
+                </a>
+                <a className="btn-accent text-center animate-float" href="https://github.com/shahcoin/docs" target="_blank" rel="noopener noreferrer" style={{ animationDelay: '0.4s' }}>
+                  <div className="flex items-center justify-center gap-2">
+                    <span>📖</span>
+                    <span>Read Docs</span>
+                  </div>
+                </a>
               </div>
             </div>
 
