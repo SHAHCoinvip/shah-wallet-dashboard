@@ -11,7 +11,7 @@ async function main() {
   console.log(`🔗 Contract: ${contractAddress}`);
 
   for (let i = 8; i <= 61; i++) {
-    const tokenURI = `https://raw.githubusercontent.com/shahcoinvip/shah-nft-metadata/main/public/metadata/${i}.json`;
+    const tokenURI = `https://raw.githubusercontent.com/shahcoins/shah-nft-metadata/main/public/metadata/${i}.json`;
 
     try {
       const mintTx = await ShahGoldNFT.mint(deployer.address, tokenURI);

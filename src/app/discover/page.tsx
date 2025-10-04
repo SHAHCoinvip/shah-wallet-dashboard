@@ -87,7 +87,7 @@ export default function DiscoverPage() {
           address: '0x6E0cFA42F797E316ff147A21f7F1189cd610ede8',
           networkId: 1,
           networkName: 'Ethereum',
-          price: 0.01,
+          price: 1.72,
           change24h: 15.5,
           volume24h: 2500000,
           marketCap: 10000000,
@@ -320,57 +320,57 @@ export default function DiscoverPage() {
           animate={{ opacity: 1, y: 0 }}
           className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
         >
-          <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div className="stat-card">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Eye className="w-5 h-5 text-blue-600" />
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                <Eye className="w-5 h-5 text-white" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-gray-800">{stats.total}</div>
-                <div className="text-sm text-gray-600">Total Tokens</div>
+                <div className="text-2xl font-bold text-white">{stats.total}</div>
+                <div className="text-sm text-gray-400">Total Tokens</div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div className="stat-card">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-orange-600" />
+              <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-white" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-gray-800">{stats.trending}</div>
-                <div className="text-sm text-gray-600">Trending</div>
+                <div className="text-2xl font-bold text-white">{stats.trending}</div>
+                <div className="text-sm text-gray-400">Trending</div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div className="stat-card">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-green-600" />
+              <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-white" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-gray-800">{stats.newTokens}</div>
-                <div className="text-sm text-gray-600">New Today</div>
+                <div className="text-2xl font-bold text-white">{stats.newTokens}</div>
+                <div className="text-sm text-gray-400">New Today</div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div className="stat-card">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Shield className="w-5 h-5 text-purple-600" />
+              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                <Shield className="w-5 h-5 text-white" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-gray-800">{stats.verified}</div>
-                <div className="text-sm text-gray-600">Verified</div>
+                <div className="text-2xl font-bold text-white">{stats.verified}</div>
+                <div className="text-sm text-gray-400">Verified</div>
               </div>
             </div>
           </div>
         </motion.div>
 
         {/* Search and Filters */}
-        <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
+        <div className="card p-6 mb-8">
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Search */}
             <div className="flex-1">
@@ -381,7 +381,7 @@ export default function DiscoverPage() {
                   placeholder="Search tokens by name, symbol, or description..."
                   value={filters.search}
                   onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="input-enhanced w-full pl-10 pr-4 py-3"
                 />
               </div>
             </div>
@@ -389,7 +389,7 @@ export default function DiscoverPage() {
             {/* Filter Button */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="btn-secondary flex items-center gap-2"
             >
               <Filter className="w-5 h-5" />
               Filters
@@ -479,21 +479,21 @@ export default function DiscoverPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+              className="card overflow-hidden"
             >
               {/* Token Header */}
-              <div className="p-6 border-b border-gray-100">
+              <div className="p-6 border-b border-gray-700">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <span className="text-blue-600 font-bold text-lg">{token.symbol[0]}</span>
+                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                      <span className="text-white font-bold text-lg">{token.symbol[0]}</span>
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-gray-800">{token.name}</h3>
+                        <h3 className="font-semibold text-white">{token.name}</h3>
                         {token.isVerified && <VerifiedBadge />}
                       </div>
-                      <div className="text-sm text-gray-500">{token.symbol}</div>
+                      <div className="text-sm text-gray-400">{token.symbol}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -593,10 +593,10 @@ export default function DiscoverPage() {
 
                 {/* Actions */}
                 <div className="flex gap-2">
-                  <button className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">
+                  <button className="btn-primary flex-1">
                     View Details
                   </button>
-                  <button className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors">
+                  <button className="btn-secondary flex-1">
                     Trade
                   </button>
                 </div>

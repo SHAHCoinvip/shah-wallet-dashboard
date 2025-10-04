@@ -10,16 +10,8 @@ const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN!);
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 const TARGET_WALLET = process.env.TARGET_WALLET;
 
-// --- Price alert configuration ---
-// Percentage change required to trigger an update from the change watcher (e.g., 1 = 1%)
-const PRICE_CHANGE_PERCENT_THRESHOLD = Number(process.env.PRICE_CHANGE_PERCENT_THRESHOLD || '1');
-// Polling interval for change watcher in minutes
-const PRICE_WATCH_INTERVAL_MIN = Number(process.env.PRICE_WATCH_INTERVAL_MIN || '5');
-// Daily update hour in UTC (0-23)
-const DAILY_UPDATE_HOUR_UTC = Number(process.env.DAILY_UPDATE_HOUR_UTC || '12');
-
-// In-memory last sent price tracker
-let lastSentPriceUsd: number | null = null;
+// --- Daily price update configuration ---
+// Bot will send SHAH price update once per day at 12:00 UTC (noon)
 
 bot.start(async (ctx) => {
   // Check if this is a linking command
@@ -316,81 +308,52 @@ bot.on('callback_query', async (ctx) => {
   }
 });
 
-// --- Automatic price updates ---
-async function sendPriceUpdate(force: boolean) {
+// --- Daily price update function ---
+async function sendPriceUpdate() {
   if (!CHAT_ID) {
-    console.log('⚠️ TELEGRAM_CHAT_ID not set, skipping automatic updates');
+    console.log('⚠️ TELEGRAM_CHAT_ID not set, skipping daily price update');
     return;
   }
 
   try {
     const price = await getSHAHPrice();
     if (price > 0) {
-      if (!force && lastSentPriceUsd !== null) {
-        const pctChange = Math.abs(((price - lastSentPriceUsd) / lastSentPriceUsd) * 100);
-        if (pctChange < PRICE_CHANGE_PERCENT_THRESHOLD) {
-          // Below threshold; skip send
-          return;
-        }
-      }
-
-      const message = `📊 SHAH Price Update\n🪙 Current Price: $${formatPrice(price)}\n⏰ ${new Date().toUTCString()}`;
+      const message = `📊 Daily SHAH Price Update\n🪙 Current Price: $${formatPrice(price)}\n⏰ ${new Date().toUTCString()}\n\n📈 Follow @shahcoins for updates!`;
       await bot.telegram.sendMessage(CHAT_ID, message);
-      lastSentPriceUsd = price;
-      console.log(`✅ Sent price update: $${formatPrice(price)} (force=${force})`);
+      console.log(`✅ Sent daily price update: $${formatPrice(price)}`);
     } else {
-      console.log('⚠️ Could not fetch price for automatic update');
+      console.log('⚠️ Could not fetch SHAH price for daily update');
     }
   } catch (error) {
-    console.error('Error sending automatic price update:', error);
+    console.error('Error sending daily price update:', error);
   }
 }
 
-// Periodic watcher: check frequently, only send when price changes beyond threshold
-setInterval(async () => {
-  try {
-    const price = await getSHAHPrice();
-    if (price > 0) {
-      if (lastSentPriceUsd === null) {
-        lastSentPriceUsd = price;
-        return;
-      }
-      const pctChange = Math.abs(((price - lastSentPriceUsd) / lastSentPriceUsd) * 100);
-      if (pctChange >= PRICE_CHANGE_PERCENT_THRESHOLD) {
-        await sendPriceUpdate(false);
-      }
-    }
-  } catch (error) {
-    console.error('Error in price change watcher:', error);
-  }
-}, Math.max(1, PRICE_WATCH_INTERVAL_MIN) * 60 * 1000);
-
-// Daily update scheduler: send once a day at DAILY_UPDATE_HOUR_UTC
+// Daily update scheduler: send once a day at 12:00 UTC (noon)
 (function scheduleDailyUpdate() {
   const now = new Date();
   const next = new Date(now);
-  next.setUTCHours(DAILY_UPDATE_HOUR_UTC, 0, 0, 0);
+  next.setUTCHours(12, 0, 0, 0); // 12:00 UTC (noon)
+  
+  // If it's already past noon today, schedule for tomorrow
   if (next <= now) {
     next.setUTCDate(next.getUTCDate() + 1);
   }
+  
   const delayMs = next.getTime() - now.getTime();
+  console.log(`📅 Next daily price update scheduled for: ${next.toUTCString()}`);
+  
   setTimeout(() => {
-    sendPriceUpdate(true);
-    setInterval(() => sendPriceUpdate(true), 24 * 60 * 60 * 1000);
+    console.log('🕐 Sending daily price update...');
+    sendPriceUpdate();
+    
+    // Schedule the next day's update
+    setInterval(() => {
+      console.log('🕐 Sending daily price update...');
+      sendPriceUpdate();
+    }, 24 * 60 * 60 * 1000); // Every 24 hours
   }, delayMs);
 })();
-
-// Initial bootstrap: capture baseline price and send a single update after 1 minute if desired
-setTimeout(async () => {
-  try {
-    const price = await getSHAHPrice();
-    if (price > 0 && lastSentPriceUsd === null) {
-      lastSentPriceUsd = price;
-    }
-  } catch (error) {
-    // ignore
-  }
-}, 60 * 1000);
 
 bot.launch();
 console.log('🤖 SHAH bot is running...');

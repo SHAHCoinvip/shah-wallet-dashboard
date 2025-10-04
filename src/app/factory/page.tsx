@@ -427,7 +427,7 @@ export default function FactoryPage() {
                 </a>
                 
                 <a
-                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`🎉 Just created my own token "${formData.name}" (${formData.symbol}) on Ethereum using @SHAHCoin Factory! 🏭✨\n\nToken: ${createdTokenAddress}\n\nCreate yours at https://wallet.shah.vip/factory`)}`}
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`🎉 Just created my own token "${formData.name}" (${formData.symbol}) on Ethereum using @SHAHCoins Factory! 🏭✨\n\nToken: ${createdTokenAddress}\n\nCreate yours at https://wallet.shah.vip/factory`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-gray-700 hover:bg-gray-600 px-4 py-3 rounded-xl transition-colors text-center"
