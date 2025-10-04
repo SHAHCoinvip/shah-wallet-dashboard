@@ -501,15 +501,15 @@ export default function DiscoverPage() {
                       onClick={() => toggleFavorite(token.id)}
                       className={`p-2 rounded-lg transition-colors ${
                         favorites.includes(token.id)
-                          ? 'text-red-500 bg-red-50'
-                          : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
+                          ? 'text-red-400 bg-red-500/20'
+                          : 'text-gray-400 hover:text-red-400 hover:bg-red-500/20'
                       }`}
                     >
                       <Heart className={`w-4 h-4 ${favorites.includes(token.id) ? 'fill-current' : ''}`} />
                     </button>
                     <button
                       onClick={() => shareToken(token)}
-                      className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors"
+                      className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
                     >
                       <Share2 className="w-4 h-4" />
                     </button>
@@ -519,29 +519,29 @@ export default function DiscoverPage() {
                 {/* Badges */}
                 <div className="flex items-center gap-2 mb-3">
                   {token.isTrending && (
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                    <span className="badge-warning inline-flex items-center px-2 py-1 rounded-full text-xs font-medium">
                       <TrendingUp className="w-3 h-3 mr-1" />
                       Trending
                     </span>
                   )}
                   {token.isNew && (
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <span className="badge-success inline-flex items-center px-2 py-1 rounded-full text-xs font-medium">
                       <Sparkles className="w-3 h-3 mr-1" />
                       New
                     </span>
                   )}
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  <span className="badge-info inline-flex items-center px-2 py-1 rounded-full text-xs font-medium">
                     {token.networkName}
                   </span>
                 </div>
 
                 {/* Price and Change */}
                 <div className="flex items-center justify-between">
-                  <div className="text-2xl font-bold text-gray-800">
+                  <div className="text-2xl font-bold text-white">
                     ${token.price.toFixed(6)}
                   </div>
                   <div className={`flex items-center gap-1 text-sm font-medium ${
-                    token.change24h >= 0 ? 'text-green-600' : 'text-red-600'
+                    token.change24h >= 0 ? 'text-green-400' : 'text-red-400'
                   }`}>
                     {token.change24h >= 0 ? (
                       <ArrowUpRight className="w-4 h-4" />
@@ -557,26 +557,26 @@ export default function DiscoverPage() {
               <div className="p-6">
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
-                    <div className="text-sm text-gray-600">Volume 24h</div>
-                    <div className="font-semibold text-gray-800">{formatCurrency(token.volume24h)}</div>
+                    <div className="text-sm text-gray-400">Volume 24h</div>
+                    <div className="font-semibold text-white">{formatCurrency(token.volume24h)}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600">Market Cap</div>
-                    <div className="font-semibold text-gray-800">{formatCurrency(token.marketCap)}</div>
+                    <div className="text-sm text-gray-400">Market Cap</div>
+                    <div className="font-semibold text-white">{formatCurrency(token.marketCap)}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600">Holders</div>
-                    <div className="font-semibold text-gray-800">{formatNumber(token.holders)}</div>
+                    <div className="text-sm text-gray-400">Holders</div>
+                    <div className="font-semibold text-white">{formatNumber(token.holders)}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600">Network</div>
-                    <div className="font-semibold text-gray-800">{token.networkName}</div>
+                    <div className="text-sm text-gray-400">Network</div>
+                    <div className="font-semibold text-white">{token.networkName}</div>
                   </div>
                 </div>
 
                 {/* Description */}
                 <div className="mb-4">
-                  <div className="text-sm text-gray-600 line-clamp-2">{token.description}</div>
+                  <div className="text-sm text-gray-400 line-clamp-2">{token.description}</div>
                 </div>
 
                 {/* Tags */}
@@ -584,7 +584,7 @@ export default function DiscoverPage() {
                   {token.tags.slice(0, 3).map((tag, tagIndex) => (
                     <span
                       key={tagIndex}
-                      className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                      className="badge-info inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
                     >
                       {tag}
                     </span>

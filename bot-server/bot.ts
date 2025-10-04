@@ -29,7 +29,8 @@ bot.start(async (ctx) => {
     `/quick_swap - Mini swap interface\n` +
     `/quick_stake - Mini staking interface\n` +
     `/factory_new - Token creation preview\n` +
-    `/wallet - Open SHAH Web3 Wallet\n\n` +
+    `/wallet - Open SHAH Web3 Wallet\n` +
+    `/miniapp - Open SHAH Mini App\n\n` +
     `📊 **Detailed Commands:**\n` +
     `/swap - SHAH to ETH swap preview\n` +
     `/stake - Staking preview and tier info\n\n` +
@@ -258,6 +259,36 @@ bot.command('wallet', async (ctx) => {
       [
         { text: '🏭 Factory', url: 'https://wallet.shah.vip/factory' },
         { text: '🎨 NFTs', url: 'https://wallet.shah.vip/nft' }
+      ]
+    ]
+  };
+
+  await ctx.reply(message, { 
+    parse_mode: 'Markdown', 
+    reply_markup: keyboard 
+  });
+});
+
+bot.command('miniapp', async (ctx) => {
+  const message = `📱 **SHAH Telegram Mini App**\n\n` +
+    `Access SHAH Wallet directly in Telegram:\n\n` +
+    `🚀 **Features:**\n` +
+    `• Portfolio Dashboard\n` +
+    `• Token Swapping\n` +
+    `• SHAH Staking\n` +
+    `• Token Discovery\n` +
+    `• Price Tracking\n` +
+    `• SHAHCOIN Info\n\n` +
+    `💡 *Tap "Open Mini App" to start using SHAH Wallet in Telegram!*`;
+
+  const keyboard = {
+    inline_keyboard: [
+      [
+        { text: '📱 Open Mini App', web_app: { url: 'https://wallet.shah.vip/telegram' } }
+      ],
+      [
+        { text: '🌐 Full Wallet', url: 'https://wallet.shah.vip' },
+        { text: '📊 SHAHCOIN', url: 'https://wallet.shah.vip/shahcoin-wallet' }
       ]
     ]
   };
