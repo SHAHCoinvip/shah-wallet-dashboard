@@ -47,59 +47,75 @@
   }
 }
 
-/* Clean MetaMask-Style Components */
+/* Modern Fancy UI Components */
 @layer components {
   .test-badge {
-    @apply inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-500 text-white;
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg;
   }
 
-  /* Simple Button System */
+  /* Modern Button System */
   .btn-primary {
-    @apply bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded transition-colors;
+    @apply bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 border-0;
   }
 
   .btn-secondary {
-    @apply bg-gray-600 hover:bg-gray-700 text-white font-medium px-4 py-2 rounded transition-colors;
+    @apply bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-500 hover:to-gray-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 border-0;
   }
 
   .btn-accent {
-    @apply bg-purple-600 hover:bg-purple-700 text-white font-medium px-4 py-2 rounded transition-colors;
+    @apply bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 border-0;
   }
 
-  /* Simple Card System */
+  .btn-success {
+    @apply bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 border-0;
+  }
+
+  .btn-warning {
+    @apply bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 border-0;
+  }
+
+  /* Modern Card System */
   .card {
-    @apply bg-gray-800 border border-gray-700 rounded p-4;
+    @apply bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-2xl p-6 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 backdrop-blur-sm;
   }
 
   .card-elevated {
-    @apply bg-gray-800 border border-gray-700 rounded p-6;
+    @apply bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-2xl p-8 shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 backdrop-blur-sm;
   }
 
-  /* Simple Input */
+  .card-glow {
+    @apply bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-2xl p-6 shadow-2xl hover:shadow-3xl hover:shadow-blue-500/20 transform hover:scale-105 transition-all duration-300 backdrop-blur-sm;
+  }
+
+  /* Modern Input */
   .input-enhanced {
-    @apply bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-blue-500;
+    @apply bg-gray-800/50 border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 backdrop-blur-sm;
   }
 
-  /* Simple Navigation */
+  /* Modern Navigation */
   .nav-item {
-    @apply py-2 px-3 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition-colors;
+    @apply py-3 px-4 rounded-xl text-gray-300 hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10 hover:text-white transition-all duration-300 font-medium;
   }
 
   .nav-item-active {
-    @apply bg-blue-600 text-white;
+    @apply bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold shadow-lg;
   }
 
-  /* Simple Badges */
+  /* Modern Badges */
   .badge-success {
-    @apply bg-green-600 text-white px-2 py-1 rounded text-xs;
+    @apply bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg;
   }
 
   .badge-warning {
-    @apply bg-yellow-600 text-white px-2 py-1 rounded text-xs;
+    @apply bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg;
   }
 
   .badge-info {
-    @apply bg-blue-600 text-white px-2 py-1 rounded text-xs;
+    @apply bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg;
+  }
+
+  .badge-purple {
+    @apply bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg;
   }
 
   /* Enhanced Grid Layouts */

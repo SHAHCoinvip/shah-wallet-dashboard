@@ -40,10 +40,15 @@ export default function RootShell({ children }: { children: React.ReactNode }) {
       </div>
       
       <div className="flex bg-gray-950 text-white">
-        <aside className="w-56 min-h-screen bg-gray-900 border-r border-gray-800">
-          <div className="p-4">
-            <h2 className="text-lg font-semibold text-white mb-6">SHAH Wallet</h2>
-            <nav className="space-y-1">
+        <aside className="w-64 min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 border-r border-gray-700">
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
+                <span className="text-white font-bold text-lg">S</span>
+              </div>
+              <h2 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">SHAH Wallet</h2>
+            </div>
+            <nav className="space-y-2">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
@@ -64,7 +69,7 @@ export default function RootShell({ children }: { children: React.ReactNode }) {
           </div>
         </aside>
 
-        <main className="flex-1 overflow-y-auto h-screen bg-gray-950 p-6">
+        <main className="flex-1 overflow-y-auto h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 p-8">
           {children}
         </main>
       </div>
