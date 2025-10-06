@@ -111,7 +111,7 @@ export default function PoolsPage() {
               placeholder="Search pools or tokens..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="input-enhanced w-full pl-10 pr-4 py-3"
             />
           </div>
           
@@ -119,14 +119,14 @@ export default function PoolsPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'tvl' | 'volume' | 'apr')}
-              className="px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="input-enhanced px-4 py-3"
             >
               <option value="tvl">Sort by TVL</option>
               <option value="volume">Sort by Volume</option>
               <option value="apr">Sort by APR</option>
             </select>
             
-            <button className="px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white hover:bg-gray-700 transition-colors">
+            <button className="btn-secondary px-4 py-3">
               <Filter className="w-5 h-5" />
             </button>
           </div>
@@ -258,10 +258,10 @@ export default function PoolsPage() {
 
               {/* Actions */}
               <div className="mt-4 flex gap-2">
-                <button className="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors">
+                <button className="btn-primary flex-1 text-sm">
                   Add Liquidity
                 </button>
-                <button className="flex-1 px-3 py-2 bg-gray-700 text-white text-sm rounded hover:bg-gray-600 transition-colors">
+                <button className="btn-secondary flex-1 text-sm">
                   Swap
                 </button>
               </div>
@@ -340,13 +340,13 @@ export default function PoolsPage() {
 
             {/* Actions */}
             <div className="flex gap-4">
-              <button className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              <button className="btn-primary flex-1">
                 Add Liquidity
               </button>
-              <button className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+              <button className="btn-accent flex-1">
                 Swap Tokens
               </button>
-              <button className="flex-1 px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors">
+              <button className="btn-secondary flex-1">
                 View Analytics
               </button>
             </div>
