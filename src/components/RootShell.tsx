@@ -40,78 +40,23 @@ export default function RootShell({ children }: { children: React.ReactNode }) {
       </div>
       
       <div className="flex bg-gray-950 text-white">
-        <aside className="w-64 min-h-screen bg-gray-900 border-r border-gray-800">
-          {/* Header */}
-          <div className="p-4 border-b border-gray-800">
-            <h2 className="text-lg font-semibold text-white">SHAH Wallet</h2>
+        <aside className="w-56 min-h-screen bg-gray-900 border-r border-gray-800">
+          <div className="p-4">
+            <h2 className="text-lg font-semibold text-white mb-6">SHAH Wallet</h2>
+            <nav className="space-y-1">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`nav-item block ${
+                    pathname === item.href ? 'nav-item-active' : ''
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
           </div>
-          
-          {/* Navigation */}
-          <nav className="p-4 space-y-6">
-            {/* Main Navigation */}
-            <div className="nav-section">
-              <div className="nav-section-title">Main</div>
-              {navItems.filter(item => item.section === 'main').map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`nav-item block ${
-                    pathname === item.href ? 'nav-item-active' : ''
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </div>
-
-            {/* DeFi Section */}
-            <div className="nav-section">
-              <div className="nav-section-title">DeFi</div>
-              {navItems.filter(item => item.section === 'defi').map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`nav-item block ${
-                    pathname === item.href ? 'nav-item-active' : ''
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </div>
-
-            {/* Tools Section */}
-            <div className="nav-section">
-              <div className="nav-section-title">Tools</div>
-              {navItems.filter(item => item.section === 'tools').map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`nav-item block ${
-                    pathname === item.href ? 'nav-item-active' : ''
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </div>
-
-            {/* Other Section */}
-            <div className="nav-section">
-              <div className="nav-section-title">Other</div>
-              {navItems.filter(item => item.section === 'other').map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`nav-item block ${
-                    pathname === item.href ? 'nav-item-active' : ''
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </div>
-          </nav>
           <div className="mt-6 pt-6 border-t border-gray-800">
             <div className="flex justify-center">
               <NotifBell />
@@ -119,10 +64,8 @@ export default function RootShell({ children }: { children: React.ReactNode }) {
           </div>
         </aside>
 
-        <main className="flex-1 overflow-y-auto h-screen bg-gray-950">
-          <div className="p-6">
-            {children}
-          </div>
+        <main className="flex-1 overflow-y-auto h-screen bg-gray-950 p-6">
+          {children}
         </main>
       </div>
     </Providers>
