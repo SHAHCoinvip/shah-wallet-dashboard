@@ -240,10 +240,13 @@ export default function AlertSettingsPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="text-center mb-12"
         >
-          <h1 className="text-4xl font-bold mb-4">🔔 Notification Settings</h1>
-          <p className="text-gray-300">Configure your SHAH wallet alerts and notifications</p>
+          <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-2xl">
+            <span className="text-white font-bold text-2xl">🔔</span>
+          </div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-4">Notification Settings</h1>
+          <p className="text-gray-400 text-lg">Configure your SHAH wallet alerts and notifications</p>
         </motion.div>
 
         {loading ? (
@@ -263,40 +266,45 @@ export default function AlertSettingsPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-6"
+                className="card-glow"
               >
-                <h2 className="text-2xl font-bold mb-4">📱 Telegram Notifications</h2>
-                <p className="text-gray-300 mb-4">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
+                    <span className="text-white font-bold">📱</span>
+                  </div>
+                  <h2 className="text-2xl font-bold text-white">Telegram Notifications</h2>
+                </div>
+                <p className="text-gray-400 mb-6">
                   Link your Telegram account to receive instant notifications
                 </p>
                 
                 {subscription.telegram_user_id ? (
-                  <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
+                  <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-xl p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-green-400 font-medium">✅ Telegram Connected</p>
+                        <p className="text-green-400 font-semibold text-lg">✅ Telegram Connected</p>
                         <p className="text-gray-400 text-sm">User ID: {subscription.telegram_user_id}</p>
                       </div>
                       <button
                         onClick={handleLinkTelegram}
                         disabled={linking}
-                        className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 px-4 py-2 rounded-lg transition-colors"
+                        className="btn-primary"
                       >
                         {linking ? 'Creating Link...' : 'Relink'}
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+                  <div className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/30 rounded-xl p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-blue-400 font-medium">📱 Connect Telegram</p>
+                        <p className="text-blue-400 font-semibold text-lg">📱 Connect Telegram</p>
                         <p className="text-gray-400 text-sm">Get instant alerts in Telegram</p>
                       </div>
                       <button
                         onClick={handleLinkTelegram}
                         disabled={linking}
-                        className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 px-4 py-2 rounded-lg transition-colors"
+                        className="btn-primary"
                       >
                         {linking ? 'Creating Link...' : 'Link Telegram'}
                       </button>
@@ -310,10 +318,15 @@ export default function AlertSettingsPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-6"
+                className="card"
               >
-                <h2 className="text-2xl font-bold mb-4">📧 Email Notifications</h2>
-                <p className="text-gray-300 mb-4">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                    <span className="text-white font-bold">📧</span>
+                  </div>
+                  <h2 className="text-2xl font-bold text-white">Email Notifications</h2>
+                </div>
+                <p className="text-gray-400 mb-6">
                   Optional: Add your email for backup notifications
                 </p>
                 
@@ -322,7 +335,7 @@ export default function AlertSettingsPage() {
                   placeholder="your@email.com"
                   value={subscription.email || ''}
                   onChange={(e) => setSubscription(prev => ({ ...prev, email: e.target.value }))}
-                  className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                  className="input-enhanced w-full"
                 />
               </motion.div>
 
@@ -331,47 +344,52 @@ export default function AlertSettingsPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-6"
+                className="card"
               >
-                <h2 className="text-2xl font-bold mb-4">🔔 Alert Types</h2>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center">
+                    <span className="text-white font-bold">🔔</span>
+                  </div>
+                  <h2 className="text-2xl font-bold text-white">Alert Types</h2>
+                </div>
                 
                 <div className="space-y-4">
-                  <label className="flex items-center justify-between p-4 bg-gray-700/30 rounded-lg cursor-pointer hover:bg-gray-700/50 transition-colors">
+                  <label className="flex items-center justify-between p-6 bg-gradient-to-r from-gray-700/30 to-gray-600/30 rounded-xl cursor-pointer hover:from-gray-600/40 hover:to-gray-500/40 transition-all duration-300 border border-gray-600/30">
                     <div>
-                      <div className="font-medium">📈 Price Alerts</div>
+                      <div className="font-semibold text-white text-lg">📈 Price Alerts</div>
                       <div className="text-sm text-gray-400">Get notified of significant SHAH price changes</div>
                     </div>
                     <input
                       type="checkbox"
                       checked={subscription.wants_price}
                       onChange={(e) => setSubscription(prev => ({ ...prev, wants_price: e.target.checked }))}
-                      className="w-5 h-5 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
+                      className="w-6 h-6 text-blue-600 bg-gray-700 border-gray-600 rounded-lg focus:ring-blue-500 focus:ring-2"
                     />
                   </label>
 
-                  <label className="flex items-center justify-between p-4 bg-gray-700/30 rounded-lg cursor-pointer hover:bg-gray-700/50 transition-colors">
+                  <label className="flex items-center justify-between p-6 bg-gradient-to-r from-gray-700/30 to-gray-600/30 rounded-xl cursor-pointer hover:from-gray-600/40 hover:to-gray-500/40 transition-all duration-300 border border-gray-600/30">
                     <div>
-                      <div className="font-medium">🏭 New Token Alerts</div>
+                      <div className="font-semibold text-white text-lg">🏭 New Token Alerts</div>
                       <div className="text-sm text-gray-400">Get notified when new tokens are created via SHAH Factory</div>
                     </div>
                     <input
                       type="checkbox"
                       checked={subscription.wants_new_tokens}
                       onChange={(e) => setSubscription(prev => ({ ...prev, wants_new_tokens: e.target.checked }))}
-                      className="w-5 h-5 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
+                      className="w-6 h-6 text-blue-600 bg-gray-700 border-gray-600 rounded-lg focus:ring-blue-500 focus:ring-2"
                     />
                   </label>
 
-                  <label className="flex items-center justify-between p-4 bg-gray-700/30 rounded-lg cursor-pointer hover:bg-gray-700/50 transition-colors">
+                  <label className="flex items-center justify-between p-6 bg-gradient-to-r from-gray-700/30 to-gray-600/30 rounded-xl cursor-pointer hover:from-gray-600/40 hover:to-gray-500/40 transition-all duration-300 border border-gray-600/30">
                     <div>
-                      <div className="font-medium">✅ Verification Alerts</div>
+                      <div className="font-semibold text-white text-lg">✅ Verification Alerts</div>
                       <div className="text-sm text-gray-400">Get notified of token verification status changes</div>
                     </div>
                     <input
                       type="checkbox"
                       checked={subscription.wants_verifications}
                       onChange={(e) => setSubscription(prev => ({ ...prev, wants_verifications: e.target.checked }))}
-                      className="w-5 h-5 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
+                      className="w-6 h-6 text-blue-600 bg-gray-700 border-gray-600 rounded-lg focus:ring-blue-500 focus:ring-2"
                     />
                   </label>
                 </div>
@@ -528,7 +546,7 @@ export default function AlertSettingsPage() {
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-8 py-3 rounded-xl font-medium transition-colors"
+                  className="btn-accent w-full"
                 >
                   {saving ? 'Saving...' : 'Save Settings'}
                 </button>
