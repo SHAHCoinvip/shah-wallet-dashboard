@@ -8,23 +8,23 @@ import NotifBell from '@/components/NotifBell'
 
 const navItems = [
   // Main Navigation
-  { name: 'Dashboard', href: '/', section: 'main' },
-  { name: 'Discover', href: '/discover', section: 'main' },
-  { name: 'Swap', href: '/swap', section: 'main' },
+  { name: 'Dashboard', href: '/', icon: '🏠' },
+  { name: 'Discover', href: '/discover', icon: '🔍' },
+  { name: 'Swap', href: '/swap', icon: '🔄' },
   
   // DeFi Section
-  { name: 'Farming', href: '/farming', section: 'defi' },
-  { name: 'Pools', href: '/pools', section: 'defi' },
-  { name: 'Launchpad', href: '/launchpad', section: 'defi' },
+  { name: 'Farming', href: '/farming', icon: '🌾' },
+  { name: 'Pools', href: '/pools', icon: '💧' },
+  { name: 'Launchpad', href: '/launchpad', icon: '🚀' },
   
   // Tools Section
-  { name: 'Factory', href: '/factory', section: 'tools' },
-  { name: 'Verify Factory', href: '/factory/verify', section: 'tools' },
+  { name: 'Factory', href: '/factory', icon: '🏭' },
+  { name: 'Verify Factory', href: '/factory/verify', icon: '✅' },
   
   // Other
-  { name: 'Shahcoin', href: '/shahcoin-wallet', section: 'other' },
-  { name: 'Telegram Mini App', href: '/telegram', section: 'other' },
-  { name: 'Settings', href: '/settings/alerts', section: 'other' },
+  { name: 'Shahcoin', href: '/shahcoin-wallet', icon: '🪙' },
+  { name: 'Telegram Mini App', href: '/telegram', icon: '📱' },
+  { name: 'Settings', href: '/settings/alerts', icon: '⚙️' },
 ]
 
 export default function RootShell({ children }: { children: React.ReactNode }) {
@@ -34,47 +34,48 @@ export default function RootShell({ children }: { children: React.ReactNode }) {
     <Providers>
       <Toaster position="top-center" />
       
-      {/* Test badge to verify Tailwind utilities work */}
-      <div className="fixed top-4 right-4 z-50">
-        <span className="test-badge">Tailwind Test</span>
-      </div>
-      
-      <div className="flex bg-gray-950 text-white">
-        <aside className="w-64 min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 border-r border-gray-700">
-          <div className="p-6">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-lg">S</span>
-              </div>
-              <h2 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">SHAH Wallet</h2>
+      <div className="flex bg-[var(--color-bg)] text-[var(--color-text)]">
+        {/* Sidebar */}
+        <aside className="sidebar">
+          {/* Logo */}
+          <div className="sidebar-logo">
+            <div className="w-8 h-8 bg-[var(--color-gold)] rounded-lg flex items-center justify-center">
+              <span className="text-black font-bold text-lg">S</span>
             </div>
-            <nav className="space-y-2">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`nav-item block ${
-                    pathname === item.href ? 'nav-item-active' : ''
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
+            <span>SHAH Wallet</span>
           </div>
-          <div className="mt-6 pt-6 border-t border-gray-800">
+          
+          {/* Navigation */}
+          <nav className="flex-1 px-4 py-6 space-y-2">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`sidebar-link ${
+                  pathname === item.href ? 'active' : ''
+                }`}
+              >
+                <span className="text-lg">{item.icon}</span>
+                <span>{item.name}</span>
+              </Link>
+            ))}
+          </nav>
+
+          {/* Bottom Section */}
+          <div className="p-4 border-t border-[#2a2a2a]">
             <div className="flex justify-center">
               <NotifBell />
             </div>
           </div>
         </aside>
 
-        <main className="flex-1 overflow-y-auto h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 p-8">
-          {children}
+        {/* Main Content */}
+        <main className="flex-1 ml-60">
+          <div className="main-container fade-in">
+            {children}
+          </div>
         </main>
       </div>
     </Providers>
   )
 }
-
-

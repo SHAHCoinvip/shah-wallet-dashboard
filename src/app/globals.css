@@ -1,160 +1,150 @@
+/* ================================================
+   SHAH WALLET GLOBAL STYLES
+   Luxurious Dark Theme — Royal Gold Accents
+   ================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Base layer to ensure preflight-like behavior */
-@layer base {
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
-  html,
-  body {
-    background-color: #030712 !important;
-    color: #ffffff !important;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-    min-height: 100vh;
-  }
-
-  /* Normalize links */
-  a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  a:hover {
-    text-decoration: underline;
-  }
-
-  /* Normalize form elements */
-  input, button, textarea, select {
-    font-family: inherit;
-    font-size: inherit;
-    color: inherit;
-  }
-
-  button {
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-
-  /* Normalize lists */
-  ul, ol {
-    list-style: none;
-  }
+/* ---------- Root Variables ---------- */
+:root {
+  --color-bg: #0a0a0a;
+  --color-surface: #111111;
+  --color-surface-light: #1a1a1a;
+  --color-text: #f1f1f1;
+  --color-text-secondary: #a1a1aa;
+  --color-gold: #d4af37;
+  --color-gold-hover: #f6d860;
+  --color-accent: #3b82f6;
+  --radius: 12px;
 }
 
-/* Modern Fancy UI Components */
-@layer components {
-  .test-badge {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg;
-  }
+/* ---------- Base Styles ---------- */
+html,
+body {
+  background: radial-gradient(circle at top left, #0c0c0c, #000);
+  color: var(--color-text);
+  font-family: 'Poppins', 'Inter', sans-serif;
+  line-height: 1.6;
+  height: 100%;
+  min-height: 100vh;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
 
-  /* Modern Button System */
-  .btn-primary {
-    @apply bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 border-0;
-  }
+/* ---------- Typography ---------- */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  color: var(--color-gold);
+}
 
-  .btn-secondary {
-    @apply bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-500 hover:to-gray-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 border-0;
-  }
+p {
+  color: var(--color-text-secondary);
+}
 
-  .btn-accent {
-    @apply bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 border-0;
-  }
+/* ---------- Layout Containers ---------- */
+.main-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
 
-  .btn-success {
-    @apply bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 border-0;
-  }
+/* ---------- Sidebar ---------- */
+.sidebar {
+  @apply fixed top-0 left-0 h-screen w-60 bg-[#111111] border-r border-[#2a2a2a] flex flex-col justify-between;
+}
 
-  .btn-warning {
-    @apply bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 border-0;
-  }
+.sidebar-logo {
+  @apply flex items-center space-x-2 p-4 text-lg font-semibold;
+  color: var(--color-gold);
+}
 
-  /* Modern Card System */
-  .card {
-    @apply bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-2xl p-6 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 backdrop-blur-sm;
-  }
+.sidebar-link {
+  @apply flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-300;
+  color: var(--color-text-secondary);
+}
 
-  .card-elevated {
-    @apply bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-2xl p-8 shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 backdrop-blur-sm;
-  }
+.sidebar-link:hover {
+  color: var(--color-gold-hover);
+  background-color: rgba(212, 175, 55, 0.1);
+}
 
-  .card-glow {
-    @apply bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-2xl p-6 shadow-2xl hover:shadow-3xl hover:shadow-blue-500/20 transform hover:scale-105 transition-all duration-300 backdrop-blur-sm;
-  }
+.sidebar-link.active {
+  color: var(--color-gold);
+  background-color: rgba(212, 175, 55, 0.15);
+}
 
-  /* Modern Input */
-  .input-enhanced {
-    @apply bg-gray-800/50 border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 backdrop-blur-sm;
-  }
+/* ---------- Buttons ---------- */
+.btn-gold {
+  @apply font-semibold rounded-xl px-4 py-2 transition-all duration-300;
+  background-color: var(--color-gold);
+  color: #000;
+}
 
-  /* Modern Navigation */
-  .nav-item {
-    @apply py-3 px-4 rounded-xl text-gray-300 hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10 hover:text-white transition-all duration-300 font-medium;
-  }
+.btn-gold:hover {
+  background-color: var(--color-gold-hover);
+}
 
-  .nav-item-active {
-    @apply bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold shadow-lg;
-  }
+.btn-outline {
+  @apply border rounded-xl px-4 py-2 font-medium transition-all duration-300;
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+}
 
-  /* Modern Badges */
-  .badge-success {
-    @apply bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg;
-  }
+.btn-outline:hover {
+  background-color: rgba(212, 175, 55, 0.1);
+}
 
-  .badge-warning {
-    @apply bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg;
-  }
+/* ---------- Cards ---------- */
+.card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
 
-  .badge-info {
-    @apply bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg;
-  }
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
 
-  .badge-purple {
-    @apply bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg;
-  }
+/* ---------- Inputs ---------- */
+.input-dark {
+  background-color: var(--color-surface-light);
+  border: 1px solid #2a2a2a;
+  border-radius: var(--radius);
+  color: var(--color-text);
+  padding: 0.5rem 1rem;
+  transition: border-color 0.3s ease;
+}
 
-  /* Enhanced Grid Layouts */
-  .grid-enhanced {
-    @apply grid gap-6;
-  }
+.input-dark:focus {
+  border-color: var(--color-gold);
+  outline: none;
+}
 
-  .grid-cols-1-enhanced {
-    @apply grid-cols-1;
-  }
+/* ---------- Animations ---------- */
+.fade-in {
+  animation: fadeIn 0.6s ease-in-out;
+}
 
-  .grid-cols-2-enhanced {
-    @apply grid-cols-1 md:grid-cols-2;
-  }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-  .grid-cols-3-enhanced {
-    @apply grid-cols-1 md:grid-cols-2 lg:grid-cols-3;
-  }
-
-  /* Enhanced Text Styles */
-  .text-gradient {
-    @apply bg-gradient-to-r from-yellow-400 to-yellow-500 bg-clip-text text-transparent;
-  }
-
-  .text-gradient-blue {
-    @apply bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent;
-  }
-
-  /* Enhanced Animations */
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
-  }
-
-  .animate-pulse-slow {
-    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-  }
+/* ---------- Scrollbar ---------- */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-gold);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
 }

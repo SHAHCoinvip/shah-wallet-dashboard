@@ -128,21 +128,21 @@ export default function HomePage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="text-center">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-4">Dashboard</h1>
-        <p className="text-gray-400 text-lg">Welcome to your SHAH Wallet</p>
+      <div className="text-center mb-12">
+        <h1 className="text-5xl font-bold mb-4" style={{ color: 'var(--color-gold)' }}>Dashboard</h1>
+        <p className="text-lg" style={{ color: 'var(--color-text-secondary)' }}>Welcome to your SHAH Wallet</p>
       </div>
 
       {/* Portfolio Summary */}
-      <div className="card-glow">
+      <div className="card">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-white mb-2">Portfolio Value</h2>
-            <p className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">${totalUSD.toFixed(2)}</p>
-            <p className="text-sm text-gray-400 mt-1">Total Assets</p>
+            <h2 className="text-2xl font-semibold mb-2" style={{ color: 'var(--color-gold)' }}>Portfolio Value</h2>
+            <p className="text-5xl font-bold" style={{ color: 'var(--color-gold)' }}>${totalUSD.toFixed(2)}</p>
+            <p className="text-sm mt-2" style={{ color: 'var(--color-text-secondary)' }}>Total Assets</p>
           </div>
-          <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-2xl">
-            <span className="text-white font-bold text-2xl">S</span>
+          <div className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-2xl" style={{ backgroundColor: 'var(--color-gold)' }}>
+            <span className="text-black font-bold text-3xl">S</span>
           </div>
         </div>
       </div>
@@ -150,17 +150,17 @@ export default function HomePage() {
       {/* Action Buttons */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Link href="/staking">
-          <button className="btn-success w-full">
+          <button className="btn-gold w-full">
             🚀 Staking
           </button>
         </Link>
         <Link href="/swap">
-          <button className="btn-accent w-full">
+          <button className="btn-outline w-full">
             🔄 Swap
           </button>
         </Link>
         <Link href="/farming">
-          <button className="btn-warning w-full">
+          <button className="btn-gold w-full">
             🌾 Farming
           </button>
         </Link>
@@ -371,10 +371,13 @@ export default function HomePage() {
           </motion.div>
         </motion.div>
       ) : (
-        <div className="card text-center py-8">
-          <h2 className="text-xl font-semibold mb-4 text-white">Connect Your Wallet</h2>
-          <p className="text-gray-400 mb-6">Connect your wallet to view your portfolio and start trading</p>
-          <button className="btn-primary">
+        <div className="card text-center py-12">
+          <div className="w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center shadow-2xl" style={{ backgroundColor: 'var(--color-gold)' }}>
+            <span className="text-black font-bold text-2xl">🔗</span>
+          </div>
+          <h2 className="text-2xl font-semibold mb-4" style={{ color: 'var(--color-gold)' }}>Connect Your Wallet</h2>
+          <p className="mb-8" style={{ color: 'var(--color-text-secondary)' }}>Connect your wallet to view your portfolio and start trading</p>
+          <button className="btn-gold">
             Connect Wallet
           </button>
         </div>
