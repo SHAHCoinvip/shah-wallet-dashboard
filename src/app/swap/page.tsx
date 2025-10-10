@@ -323,7 +323,8 @@ export default function SwapPage() {
         <h1 className="text-5xl font-bold mb-4" style={{ color: 'var(--color-gold)' }}>Swap</h1>
         <p className="text-lg" style={{ color: 'var(--color-text-secondary)' }}>Trade tokens with SHAH Wallet</p>
       </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Chart Section */}
           <div className="lg:col-span-2">
             <ChartEmbed 
