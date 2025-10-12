@@ -1,24 +1,19 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic'
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { parseUnits, formatUnits } from 'viem'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { toast } from 'react-hot-toast'
-import { motion } from 'framer-motion'
+import { Factory, CheckCircle2, Info } from 'lucide-react'
 import Link from 'next/link'
 import { 
   CONTRACTS, 
-  FEATURES, 
   TokenFeatures, 
   TokenCreationArgs,
   getFeatureBitmap,
   validateTokenParams,
   decodeTokenCreated,
-  generateEtherscanVerification,
   formatShahPrice,
   calcShahForUsd,
   PRICING
@@ -27,11 +22,16 @@ import { SHAHFactoryABI } from '@/abi/SHAHFactory'
 import { SHAHPriceOracleABI } from '@/abi/SHAHPriceOracle'
 import { ERC20ABI } from '@/abi/ERC20'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 type PaymentMethod = 'shah' | 'card'
 type CreateStep = 'idle' | 'approving' | 'creating' | 'success'
 
 export default function FactoryPage() {
   const { address, isConnected } = useAccount()
+  
+  const [currentStep, setCurrentStep] = useState(1)
   
   // Form state
   const [formData, setFormData] = useState({
@@ -56,8 +56,6 @@ export default function FactoryPage() {
   const [createStep, setCreateStep] = useState<CreateStep>('idle')
   const [createdTokenAddress, setCreatedTokenAddress] = useState<`0x${string}` | null>(null)
   const [requiredShahAmount, setRequiredShahAmount] = useState<string>('0')
-  const [stripeSessionId, setStripeSessionId] = useState<string | null>(null)
-  const [isPaymentConfirmed, setIsPaymentConfirmed] = useState(false)
   
   // Contract reads
   const { data: shahPriceData } = useReadContract({
@@ -141,52 +139,12 @@ export default function FactoryPage() {
     }
   }, [shahPrice, paymentMethod])
   
-  // Check for successful Stripe payment on page load
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    const sessionId = urlParams.get('session_id')
-    const success = urlParams.get('success')
-    
-    if (sessionId && success === 'true' && address) {
-      setStripeSessionId(sessionId)
-      confirmStripePayment(sessionId)
-    }
-  }, [address])
-  
   const handleInputChange = (field: keyof typeof formData, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
   
   const handleFeatureChange = (feature: keyof TokenFeatures, checked: boolean) => {
     setFeatures(prev => ({ ...prev, [feature]: checked }))
-  }
-  
-  const confirmStripePayment = async (sessionId: string) => {
-    try {
-      const response = await fetch('/api/stripe/confirm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, walletAddress: address })
-      })
-      
-      const data = await response.json()
-      
-      if (data.success) {
-        setIsPaymentConfirmed(true)
-        toast.success('💳 Payment confirmed! You can now create your token.')
-        
-        // Clean up URL parameters
-        const url = new URL(window.location.href)
-        url.searchParams.delete('session_id')
-        url.searchParams.delete('success')
-        window.history.replaceState({}, '', url.toString())
-      } else {
-        toast.error('❌ Payment verification failed')
-      }
-    } catch (error) {
-      console.error('Payment confirmation error:', error)
-      toast.error('❌ Failed to verify payment')
-    }
   }
   
   const isFormValid = () => {
@@ -274,476 +232,327 @@ export default function FactoryPage() {
       toast.error('❌ Failed to create token')
     }
   }
-  
-  const handleCardPayment = async () => {
-    if (!isFormValid()) {
-      toast.error('Please check all form fields')
-      return
-    }
-    
-    try {
-      // Create Stripe checkout session
-      const response = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount: PRICING.CARD_USD,
-          walletAddress: address,
-          tokenName: formData.name,
-          tokenSymbol: formData.symbol,
-          features: Object.entries(features)
-            .filter(([_, enabled]) => enabled)
-            .map(([feature, _]) => feature)
-            .join(', ')
-        })
-      })
-      
-      const data = await response.json()
-      
-      if (data.url) {
-        // Redirect to Stripe checkout
-        window.location.href = data.url
-      } else {
-        throw new Error('Failed to create checkout session')
-      }
-    } catch (error) {
-      console.error('Card payment error:', error)
-      toast.error('❌ Failed to process card payment')
-    }
-  }
-  
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-    toast.success('📋 Copied to clipboard!')
-  }
-  
-  const copyVerificationData = () => {
-    if (!createdTokenAddress) return
-    
-    const verificationData = generateEtherscanVerification({
-      ...formData,
-      owner: formData.owner as `0x${string}`,
-      features: getFeatureBitmap(features),
-      maxSupply: features.capped ? formData.maxSupply : '0'
-    })
-    
-    const data = {
-      contractAddress: createdTokenAddress,
-      contractName: `${formData.symbol}Token`,
-      ...verificationData,
-      settings: {
-        evmVersion: 'default',
-        viaIR: false,
-        licenseType: 'MIT License (MIT)',
-        optimizerEnabled: true,
-        runs: 200
-      },
-      libraries: {},
-      sourceCode: `// SPDX-License-Identifier: MIT
-// Token created via SHAH Factory
-// Contract: ${createdTokenAddress}
-// Features: ${Object.entries(features).filter(([_, enabled]) => enabled).map(([name]) => name).join(', ')}
-// Created: ${new Date().toISOString()}`
-    }
-    
-    copyToClipboard(JSON.stringify(data, null, 2))
-  }
-  
-  if (createStep === 'success' && createdTokenAddress) {
-    return (
-      <main className="min-h-screen bg-gradient-to-br from-black to-gray-900 text-white p-6">
-        <div className="max-w-2xl mx-auto mt-10">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-gradient-to-br from-green-900/20 to-emerald-900/20 backdrop-blur-sm border border-green-500/30 rounded-3xl p-8 text-center"
-          >
-            <div className="text-6xl mb-6">🎉</div>
-            <h1 className="text-3xl font-bold mb-4">Token Created Successfully!</h1>
-            <p className="text-gray-300 mb-8">Your new token has been deployed to Ethereum mainnet</p>
-            
-            <div className="bg-gray-800/50 rounded-xl p-6 mb-6">
-              <h3 className="text-lg font-bold mb-3">Token Address</h3>
-              <div className="flex items-center justify-between bg-gray-900 rounded-lg p-3">
-                <code className="text-green-400 font-mono">{createdTokenAddress}</code>
-                <button
-                  onClick={() => copyToClipboard(createdTokenAddress)}
-                  className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded text-sm transition-colors"
-                >
-                  Copy
-                </button>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <a
-                href={`https://etherscan.io/token/${createdTokenAddress}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-xl transition-colors inline-block text-center"
-              >
-                📊 View on Etherscan
-              </a>
-              
-              <a
-                href={`https://etherscan.io/address/${createdTokenAddress}#code`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-gray-600 hover:bg-gray-700 px-4 py-3 rounded-xl transition-colors inline-block text-center"
-              >
-                🔍 View Contract Code
-              </a>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-              <button
-                onClick={copyVerificationData}
-                className="bg-purple-600 hover:bg-purple-700 px-4 py-3 rounded-xl transition-colors"
-              >
-                📋 Copy Verification Data
-              </button>
-              
-              <Link
-                href="/factory/verify"
-                className="bg-yellow-600 hover:bg-yellow-700 px-4 py-3 rounded-xl transition-colors inline-block text-center"
-              >
-                ✅ Request Verification
-              </Link>
-            </div>
-            
-            {/* Telegram Sharing */}
-            <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 backdrop-blur-sm border border-blue-500/30 rounded-xl p-6 mb-6">
-              <h4 className="font-bold mb-3 text-blue-300">📢 Share Your Success!</h4>
-              <p className="text-gray-300 text-sm mb-4">Let the community know about your new token</p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <a
-                  href={`https://t.me/share/url?url=https://etherscan.io/token/${createdTokenAddress}&text=${encodeURIComponent(`🎉 Just created my own token "${formData.name}" (${formData.symbol}) on Ethereum using SHAH Factory! 🏭✨\n\nToken Address: ${createdTokenAddress}\n\nFeatures: ${Object.entries(features).filter(([_, enabled]) => enabled).map(([name]) => name).join(', ') || 'Basic'}\n\nCreate yours at https://wallet.shah.vip/factory`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-xl transition-colors text-center"
-                >
-                  📱 Share on Telegram
-                </a>
-                
-                <a
-                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`🎉 Just created my own token "${formData.name}" (${formData.symbol}) on Ethereum using @SHAHCoins Factory! 🏭✨\n\nToken: ${createdTokenAddress}\n\nCreate yours at https://wallet.shah.vip/factory`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-gray-700 hover:bg-gray-600 px-4 py-3 rounded-xl transition-colors text-center"
-                >
-                  🐦 Share on Twitter
-                </a>
-              </div>
-              
-              <div className="mt-4 p-3 bg-blue-900/30 rounded-lg">
-                <p className="text-xs text-blue-200">
-                  💡 Pro tip: Share your token to build community and increase adoption!
-                </p>
-              </div>
-            </div>
-            
-            {/* Token Details */}
-            <div className="bg-gray-800/50 rounded-xl p-4 mb-6 text-sm">
-              <h4 className="font-bold mb-3">Token Details</h4>
-              <div className="grid grid-cols-2 gap-2">
-                <div><span className="text-gray-400">Name:</span> {formData.name}</div>
-                <div><span className="text-gray-400">Symbol:</span> {formData.symbol}</div>
-                <div><span className="text-gray-400">Decimals:</span> {formData.decimals}</div>
-                <div><span className="text-gray-400">Supply:</span> {formData.initialSupply}</div>
-                <div className="col-span-2">
-                  <span className="text-gray-400">Features:</span> {
-                    Object.entries(features)
-                      .filter(([_, enabled]) => enabled)
-                      .map(([name]) => name)
-                      .join(', ') || 'Basic'
-                  }
-                </div>
-              </div>
-            </div>
-            
-            <button
-              onClick={() => {
-                setCreateStep('idle')
-                setCreatedTokenAddress(null)
-                setFormData({
-                  name: '',
-                  symbol: '',
-                  decimals: 18,
-                  initialSupply: '',
-                  owner: address || '',
-                  maxSupply: ''
-                })
-              }}
-              className="bg-gray-600 hover:bg-gray-700 px-6 py-3 rounded-xl transition-colors"
-            >
-              Create Another Token
-            </button>
-          </motion.div>
-        </div>
-      </main>
-    )
-  }
-  
+
+  const steps = [
+    { number: 1, title: 'Token Details', description: 'Basic information' },
+    { number: 2, title: 'Tokenomics', description: 'Supply & fees' },
+    { number: 3, title: 'Confirm', description: 'Review & deploy' },
+  ]
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-black to-gray-900 text-white p-6">
-      <div className="max-w-4xl mx-auto mt-10">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-            🏭 Token Factory
-          </h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Create custom ERC-20 tokens with advanced features
-          </p>
-        </motion.div>
-        
-        {!isConnected ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-center"
-          >
-            <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-8">
-              <h3 className="text-2xl font-bold mb-4">Connect Your Wallet</h3>
-              <p className="text-gray-300 mb-6">
-                Connect your wallet to start creating tokens
-              </p>
-              <ConnectButton />
+    <div className="min-h-screen p-8" style={{ background: '#0A0A0A' }}>
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl mb-2" style={{ color: '#F1F1F1' }}>Token Factory</h1>
+        <p style={{ color: '#A1A1AA' }}>Create your own custom token in minutes</p>
+      </div>
+
+      {!isConnected ? (
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center p-12 rounded-2xl" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+            <div className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center" style={{ background: 'rgba(212, 175, 55, 0.2)' }}>
+              <Factory className="w-10 h-10" style={{ color: '#D4AF37' }} />
             </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-1 lg:grid-cols-3 gap-8"
-          >
-            {/* Form */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Basic Info */}
-              <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
-                <h3 className="text-xl font-bold mb-4">Basic Information</h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Token Name</label>
-                    <input
-                      type="text"
-                      placeholder="My Awesome Token"
-                      value={formData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      className="w-full px-4 py-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:outline-none focus:border-blue-500"
-                    />
+            <h2 className="text-2xl font-semibold mb-4" style={{ color: '#F1F1F1' }}>Connect Your Wallet</h2>
+            <p className="mb-8" style={{ color: '#A1A1AA' }}>Connect your wallet to create tokens</p>
+            <ConnectButton />
+          </div>
+        </div>
+      ) : (
+        <div className="max-w-4xl mx-auto">
+          {/* Stepper */}
+          <div className="mb-8 flex items-center justify-between">
+            {steps.map((step, index) => (
+              <div key={step.number} className="flex items-center flex-1">
+                <div className="flex flex-col items-center">
+                  <div
+                    className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 transition-all ${
+                      currentStep >= step.number
+                        ? 'gold-gradient'
+                        : 'bg-[#111111] border border-[rgba(212,175,55,0.2)]'
+                    }`}
+                  >
+                    {currentStep > step.number ? (
+                      <CheckCircle2 className="w-6 h-6 text-black" />
+                    ) : (
+                      <span className={currentStep === step.number ? 'text-black' : ''} style={{ color: currentStep === step.number ? '#0A0A0A' : '#A1A1AA' }}>
+                        {step.number}
+                      </span>
+                    )}
                   </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Symbol</label>
-                    <input
-                      type="text"
-                      placeholder="MAT"
-                      value={formData.symbol}
-                      onChange={(e) => handleInputChange('symbol', e.target.value.toUpperCase())}
-                      className="w-full px-4 py-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Decimals</label>
-                    <input
-                      type="number"
-                      min="0"
-                      max="18"
-                      value={formData.decimals}
-                      onChange={(e) => handleInputChange('decimals', parseInt(e.target.value))}
-                      className="w-full px-4 py-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Initial Supply</label>
-                    <input
-                      type="number"
-                      placeholder="1000000"
-                      value={formData.initialSupply}
-                      onChange={(e) => handleInputChange('initialSupply', e.target.value)}
-                      className="w-full px-4 py-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:outline-none focus:border-blue-500"
-                    />
+                  <div className="text-center">
+                    <div className="text-sm mb-1" style={{ color: currentStep >= step.number ? '#F1F1F1' : '#A1A1AA' }}>
+                      {step.title}
+                    </div>
+                    <div className="text-xs" style={{ color: '#A1A1AA' }}>{step.description}</div>
                   </div>
                 </div>
-                
-                <div className="mt-4">
-                  <label className="block text-sm font-medium mb-2">Owner Address</label>
+                {index < steps.length - 1 && (
+                  <div className="flex-1 h-0.5 mx-4 mt-[-24px]" style={{ background: currentStep > step.number ? '#D4AF37' : 'rgba(212, 175, 55, 0.1)' }} />
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Form Card */}
+          <div className="p-8 rounded-2xl" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+            {/* Step 1: Token Details */}
+            {currentStep === 1 && (
+              <div className="space-y-6">
+                <div>
+                  <label htmlFor="tokenName" className="block mb-2" style={{ color: '#F1F1F1' }}>Token Name</label>
                   <input
-                    type="text"
-                    value={formData.owner}
-                    onChange={(e) => handleInputChange('owner', e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:outline-none focus:border-blue-500"
+                    id="tokenName"
+                    placeholder="e.g., My Awesome Token"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    className="w-full h-12 px-4 rounded-xl focus:outline-none"
+                    style={{ background: '#0A0A0A', border: '1px solid rgba(212, 175, 55, 0.2)', color: '#F1F1F1' }}
                   />
                 </div>
-                
+
+                <div>
+                  <label htmlFor="tokenSymbol" className="block mb-2" style={{ color: '#F1F1F1' }}>Token Symbol</label>
+                  <input
+                    id="tokenSymbol"
+                    placeholder="e.g., MAT"
+                    value={formData.symbol}
+                    onChange={(e) => handleInputChange('symbol', e.target.value)}
+                    className="w-full h-12 px-4 rounded-xl focus:outline-none"
+                    style={{ background: '#0A0A0A', border: '1px solid rgba(212, 175, 55, 0.2)', color: '#F1F1F1' }}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="decimals" className="block mb-2" style={{ color: '#F1F1F1' }}>Decimals</label>
+                  <input
+                    id="decimals"
+                    type="number"
+                    value={formData.decimals}
+                    onChange={(e) => handleInputChange('decimals', parseInt(e.target.value))}
+                    className="w-full h-12 px-4 rounded-xl focus:outline-none"
+                    style={{ background: '#0A0A0A', border: '1px solid rgba(212, 175, 55, 0.2)', color: '#F1F1F1' }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Tokenomics */}
+            {currentStep === 2 && (
+              <div className="space-y-6">
+                <div>
+                  <label htmlFor="totalSupply" className="block mb-2" style={{ color: '#F1F1F1' }}>Initial Supply</label>
+                  <input
+                    id="totalSupply"
+                    placeholder="e.g., 1000000"
+                    value={formData.initialSupply}
+                    onChange={(e) => handleInputChange('initialSupply', e.target.value)}
+                    className="w-full h-12 px-4 rounded-xl focus:outline-none"
+                    style={{ background: '#0A0A0A', border: '1px solid rgba(212, 175, 55, 0.2)', color: '#F1F1F1' }}
+                  />
+                </div>
+
                 {features.capped && (
-                  <div className="mt-4">
-                    <label className="block text-sm font-medium mb-2">Max Supply (Capped)</label>
+                  <div>
+                    <label htmlFor="maxSupply" className="block mb-2" style={{ color: '#F1F1F1' }}>Max Supply</label>
                     <input
-                      type="number"
-                      placeholder="10000000"
+                      id="maxSupply"
+                      placeholder="Leave empty for no limit"
                       value={formData.maxSupply}
                       onChange={(e) => handleInputChange('maxSupply', e.target.value)}
-                      className="w-full px-4 py-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:outline-none focus:border-blue-500"
+                      className="w-full h-12 px-4 rounded-xl focus:outline-none"
+                      style={{ background: '#0A0A0A', border: '1px solid rgba(212, 175, 55, 0.2)', color: '#F1F1F1' }}
                     />
                   </div>
                 )}
-              </div>
-              
-              {/* Features */}
-              <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
-                <h3 className="text-xl font-bold mb-4">Token Features</h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Object.entries(features).map(([key, value]) => (
-                    <label key={key} className="flex items-center space-x-3 cursor-pointer">
+
+                <div className="space-y-3">
+                  <label className="block mb-2" style={{ color: '#F1F1F1' }}>Token Features</label>
+                  {Object.entries(features).filter(([key]) => key !== 'basic' && key !== 'ownable').map(([key, value]) => (
+                    <label key={key} className="flex items-center gap-3 p-3 rounded-lg cursor-pointer" style={{ background: 'rgba(10, 10, 10, 0.5)' }}>
                       <input
                         type="checkbox"
                         checked={value}
                         onChange={(e) => handleFeatureChange(key as keyof TokenFeatures, e.target.checked)}
-                        disabled={key === 'basic'}
-                        className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
+                        className="w-5 h-5"
                       />
-                      <span className="capitalize">{key}</span>
+                      <span className="capitalize" style={{ color: '#F1F1F1' }}>{key}</span>
                     </label>
                   ))}
                 </div>
-              </div>
-              
-              {/* Payment Method */}
-              <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
-                <h3 className="text-xl font-bold mb-4">Payment Method</h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <label className="flex items-center space-x-3 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="payment"
-                      checked={paymentMethod === 'shah'}
-                      onChange={() => setPaymentMethod('shah')}
-                      className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600"
-                    />
-                    <span>Pay with SHAH (${PRICING.SHAH_USD})</span>
-                  </label>
-                  
-                  <label className="flex items-center space-x-3 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="payment"
-                      checked={paymentMethod === 'card'}
-                      onChange={() => setPaymentMethod('card')}
-                      className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600"
-                    />
-                    <span>Pay with Card (${PRICING.CARD_USD})</span>
-                  </label>
+
+                <div className="p-4 rounded-lg" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                  <div className="text-sm mb-2 flex items-center gap-2" style={{ color: '#3B82F6' }}>
+                    <Info className="w-4 h-4" />
+                    Pro Tip
+                  </div>
+                  <div className="text-xs" style={{ color: '#A1A1AA' }}>
+                    Choose features carefully. Some features like pausable and upgradeable require additional setup.
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            {/* Summary & Actions */}
-            <div className="space-y-6">
-              {/* Price Summary */}
-              <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
-                <h3 className="text-xl font-bold mb-4">Summary</h3>
-                
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span>Payment Method:</span>
-                    <span className="font-medium">
-                      {paymentMethod === 'shah' ? 'SHAH' : 'Card'}
-                    </span>
-                  </div>
+            )}
+
+            {/* Step 3: Confirm */}
+            {currentStep === 3 && (
+              <div className="space-y-6">
+                <div className="p-6 rounded-xl" style={{ background: '#0A0A0A', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+                  <h3 className="text-lg mb-4" style={{ color: '#F1F1F1' }}>Token Summary</h3>
                   
-                  <div className="flex justify-between">
-                    <span>Price:</span>
-                    <span className="font-medium">
-                      ${paymentMethod === 'shah' ? PRICING.SHAH_USD : PRICING.CARD_USD}
-                    </span>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span style={{ color: '#A1A1AA' }}>Token Name</span>
+                      <span style={{ color: '#F1F1F1' }}>{formData.name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span style={{ color: '#A1A1AA' }}>Symbol</span>
+                      <span style={{ color: '#F1F1F1' }}>{formData.symbol}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span style={{ color: '#A1A1AA' }}>Initial Supply</span>
+                      <span style={{ color: '#F1F1F1' }}>{formData.initialSupply}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span style={{ color: '#A1A1AA' }}>Decimals</span>
+                      <span style={{ color: '#F1F1F1' }}>{formData.decimals}</span>
+                    </div>
                   </div>
+                </div>
+
+                <div className="p-6 rounded-xl" style={{ background: 'rgba(212, 175, 55, 0.1)', border: '1px solid rgba(212, 175, 55, 0.2)' }}>
+                  <h3 className="text-lg mb-4" style={{ color: '#D4AF37' }}>Deployment Fees</h3>
                   
-                  {paymentMethod === 'shah' && (
-                    <>
-                                        <div className="flex justify-between">
-                    <span>SHAH Amount:</span>
-                    <span className="font-medium">
-                      ~{formatUnits(BigInt(requiredShahAmount || '0'), 18)} SHAH
-                    </span>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span style={{ color: '#A1A1AA' }}>Contract Deployment</span>
+                      <span style={{ color: '#F1F1F1' }}>
+                        {requiredShahAmount ? `${formatUnits(BigInt(requiredShahAmount), 18)} SHAH` : '0.05 ETH'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span style={{ color: '#A1A1AA' }}>Gas Fee (Estimated)</span>
+                      <span style={{ color: '#F1F1F1' }}>~0.008 ETH</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span style={{ color: '#A1A1AA' }}>SHAH Platform Fee</span>
+                      <span style={{ color: '#10B981' }}>Free</span>
+                    </div>
                   </div>
-                  
-                  <div className="flex justify-between">
-                    <span>SHAH Price:</span>
-                    <span className="font-medium text-yellow-400">
-                      ${shahPrice.toFixed(6)} USD
-                    </span>
+                </div>
+
+                <div className="p-4 rounded-lg" style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                  <div className="text-sm mb-2" style={{ color: '#EF4444' }}>⚠️ Important</div>
+                  <div className="text-xs" style={{ color: '#A1A1AA' }}>
+                    Please review all details carefully. Once deployed, token parameters cannot be changed.
                   </div>
-                  
-                  <div className="flex justify-between">
-                    <span>Your Balance:</span>
-                    <span className={`font-medium ${hasEnoughShah() ? 'text-green-400' : 'text-red-400'}`}>
-                      {formatUnits(BigInt(shahBalance?.toString() || '0'), 18)} SHAH
-                    </span>
-                  </div>
-                    </>
+                </div>
+              </div>
+            )}
+
+            {/* Navigation Buttons */}
+            <div className="flex justify-between mt-8 pt-6" style={{ borderTop: '1px solid rgba(212, 175, 55, 0.1)' }}>
+              <button
+                onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
+                disabled={currentStep === 1 || createStep !== 'idle'}
+                className="px-6 py-2 rounded-lg font-medium transition-all hover:opacity-80 disabled:opacity-50"
+                style={{ borderWidth: '1px', borderColor: 'rgba(212, 175, 55, 0.3)', color: '#D4AF37', background: 'transparent' }}
+              >
+                Back
+              </button>
+
+              {currentStep < 3 ? (
+                <button
+                  onClick={() => setCurrentStep(Math.min(3, currentStep + 1))}
+                  disabled={currentStep === 1 && (!formData.name || !formData.symbol)}
+                  className="px-8 py-2 rounded-lg font-medium transition-all hover:opacity-90 disabled:opacity-50"
+                  style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%)', color: '#0A0A0A' }}
+                >
+                  Continue
+                </button>
+              ) : (
+                <>
+                  {needsApproval() ? (
+                    <button 
+                      onClick={handleApproveShah}
+                      disabled={!hasEnoughShah() || createStep !== 'idle'}
+                      className="px-8 py-2 rounded-lg font-medium transition-all hover:opacity-90 disabled:opacity-50"
+                      style={{ background: 'linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)', color: '#FFFFFF' }}
+                    >
+                      {isApproving ? 'Approving...' : 'Approve SHAH'}
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={handleCreateToken}
+                      disabled={!isFormValid() || createStep !== 'idle'}
+                      className="px-8 py-2 rounded-lg font-medium transition-all hover:opacity-90 disabled:opacity-50"
+                      style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%)', color: '#0A0A0A' }}
+                    >
+                      {isCreating ? 'Creating...' : 'Deploy Token'}
+                    </button>
                   )}
-                </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Success Message */}
+          {createStep === 'success' && createdTokenAddress && (
+            <div className="mt-6 p-6 rounded-2xl" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+              <div className="text-lg mb-2" style={{ color: '#10B981' }}>🎉 Token Created Successfully!</div>
+              <div className="text-sm mb-4" style={{ color: '#A1A1AA' }}>
+                Token Address: <span style={{ color: '#F1F1F1' }}>{createdTokenAddress}</span>
               </div>
-              
-              {/* Create Button */}
-              <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
-                {paymentMethod === 'shah' && !hasEnoughShah() ? (
-                  <button
-                    disabled
-                    className="w-full bg-red-600 text-white font-bold py-3 rounded-xl opacity-50 cursor-not-allowed"
-                  >
-                    ❌ Insufficient SHAH Balance
-                  </button>
-                ) : paymentMethod === 'shah' && needsApproval() ? (
-                  <button
-                    onClick={handleApproveShah}
-                    disabled={!isFormValid() || isApproving}
-                    className="w-full bg-yellow-600 hover:bg-yellow-700 disabled:bg-gray-600 text-white font-bold py-3 rounded-xl transition-colors"
-                  >
-                    {isApproving ? '🔐 Approving...' : '🔐 Approve SHAH'}
-                  </button>
-                ) : paymentMethod === 'card' && !isPaymentConfirmed ? (
-                  <button
-                    onClick={handleCardPayment}
-                    disabled={!isFormValid()}
-                    className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white font-bold py-3 rounded-xl transition-colors"
-                  >
-                    💳 Pay with Card ($49)
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleCreateToken}
-                    disabled={!isFormValid() || isCreating}
-                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-bold py-3 rounded-xl transition-colors"
-                  >
-                    {isCreating ? '🏭 Creating...' : '🏭 Create Token'}
-                  </button>
-                )}
-                
-                {paymentMethod === 'card' && isPaymentConfirmed && (
-                  <p className="text-green-400 text-sm mt-2">✅ Payment confirmed - ready to create token!</p>
-                )}
-                
-                {!isFormValid() && (
-                  <p className="text-red-400 text-sm mt-2">Please complete all required fields</p>
-                )}
+              <div className="flex gap-3">
+                <Link 
+                  href={`https://etherscan.io/address/${createdTokenAddress}`}
+                  target="_blank"
+                  className="px-4 py-2 rounded-lg font-medium transition-all hover:opacity-90"
+                  style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%)', color: '#0A0A0A' }}
+                >
+                  View on Etherscan
+                </Link>
+                <button
+                  onClick={() => {
+                    setCreateStep('idle')
+                    setCreatedTokenAddress(null)
+                    setCurrentStep(1)
+                    setFormData({
+                      name: '',
+                      symbol: '',
+                      decimals: 18,
+                      initialSupply: '',
+                      owner: address || '',
+                      maxSupply: ''
+                    })
+                  }}
+                  className="px-4 py-2 rounded-lg font-medium transition-all hover:opacity-90"
+                  style={{ background: '#111111', color: '#F1F1F1', border: '1px solid rgba(212, 175, 55, 0.2)' }}
+                >
+                  Create Another
+                </button>
               </div>
             </div>
-          </motion.div>
-        )}
-      </div>
-    </main>
+          )}
+
+          {/* Info Cards */}
+          <div className="grid grid-cols-3 gap-6 mt-8">
+            <div className="p-4 rounded-xl text-center" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+              <div className="text-2xl mb-2" style={{ color: '#D4AF37' }}>5 mins</div>
+              <div className="text-sm" style={{ color: '#A1A1AA' }}>Average deployment time</div>
+            </div>
+
+            <div className="p-4 rounded-xl text-center" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+              <div className="text-2xl mb-2" style={{ color: '#D4AF37' }}>2,500+</div>
+              <div className="text-sm" style={{ color: '#A1A1AA' }}>Tokens created</div>
+            </div>
+
+            <div className="p-4 rounded-xl text-center" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+              <div className="text-2xl mb-2" style={{ color: '#10B981' }}>Audited</div>
+              <div className="text-sm" style={{ color: '#A1A1AA' }}>Smart contracts</div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }

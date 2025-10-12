@@ -1,14 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic'
 import { motion } from 'framer-motion'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useAccount } from 'wagmi'
+import { Rocket, Clock, CheckCircle } from 'lucide-react'
 import { getDropsByStatus, getLaunchpadStats, LaunchpadDrop, LaunchpadStats } from '@/lib/launchpad'
 import DropCard from '@/components/DropCard'
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
 
 type TabType = 'upcoming' | 'live' | 'archived'
 
@@ -18,12 +19,6 @@ export default function LaunchpadPage() {
   const [drops, setDrops] = useState<LaunchpadDrop[]>([])
   const [stats, setStats] = useState<LaunchpadStats | null>(null)
   const [loading, setLoading] = useState(true)
-
-  const tabs = [
-    { id: 'upcoming', label: 'Upcoming', icon: '🚀' },
-    { id: 'live', label: 'Live', icon: '🔥' },
-    { id: 'archived', label: 'Archived', icon: '📚' }
-  ] as const
 
   // Load drops and stats
   useEffect(() => {
@@ -48,236 +43,174 @@ export default function LaunchpadPage() {
     }
   }
 
-  const renderTabContent = () => {
-    if (loading) {
-      return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="bg-gray-900 rounded-xl overflow-hidden border border-gray-700 animate-pulse">
-              <div className="h-48 bg-gray-700"></div>
-              <div className="p-6 space-y-4">
-                <div className="h-6 bg-gray-700 rounded w-3/4"></div>
-                <div className="h-4 bg-gray-700 rounded w-1/2"></div>
-                <div className="h-4 bg-gray-700 rounded w-full"></div>
-                <div className="h-10 bg-gray-700 rounded"></div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )
-    }
-
-    if (drops.length === 0) {
-      const emptyStateConfig = {
-        upcoming: {
-          icon: '🚀',
-          title: 'No Upcoming Drops',
-          subtitle: 'New drops are being prepared. Check back soon!'
-        },
-        live: {
-          icon: '🔥',
-          title: 'No Live Drops',
-          subtitle: 'All current drops have ended. Watch for new launches!'
-        },
-        archived: {
-          icon: '📚',
-          title: 'No Archived Drops',
-          subtitle: 'Past drops will appear here once available.'
-        }
-      }
-
-      const config = emptyStateConfig[activeTab]
-
-      return (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center py-16"
-        >
-          <div className="text-8xl mb-6">{config.icon}</div>
-          <h3 className="text-2xl font-bold mb-4">{config.title}</h3>
-          <p className="text-gray-400 text-lg mb-8 max-w-md mx-auto">
-            {config.subtitle}
-          </p>
-          {activeTab === 'upcoming' && (
-            <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 border border-purple-500/30 rounded-xl p-6 max-w-sm mx-auto">
-              <div className="text-sm text-purple-300 mb-2">Coming Soon</div>
-              <div className="text-lg font-bold text-white">SHAH Partner Collections</div>
-              <div className="text-sm text-gray-400 mt-1">Exclusive NFT partnerships</div>
-            </div>
-          )}
-        </motion.div>
-      )
-    }
-
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-      >
-        {drops.map((drop, index) => (
-          <DropCard 
-            key={drop.id} 
-            drop={drop}
-            className=""
-          />
-        ))}
-      </motion.div>
-    )
-  }
+  const featuredDrop = drops.find(d => d.status === 'live') || drops[0]
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-black to-gray-900 text-white p-6">
-      <div className="max-w-7xl mx-auto mt-10">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            🎨 SHAH NFT Launchpad
-          </h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
-            Discover and mint exclusive NFT collections from verified partners. Pay with SHAH tokens for special discounts!
-          </p>
+    <div className="min-h-screen p-8" style={{ background: '#0A0A0A' }}>
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl mb-2" style={{ color: '#F1F1F1' }}>NFT Launchpad</h1>
+        <p style={{ color: '#A1A1AA' }}>Discover and mint exclusive NFT collections</p>
+      </div>
 
-          {/* Stats */}
-          {stats && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8"
+      {!isConnected ? (
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center p-12 rounded-2xl" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+            <div className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center" style={{ background: 'rgba(212, 175, 55, 0.2)' }}>
+              <Rocket className="w-10 h-10" style={{ color: '#D4AF37' }} />
+            </div>
+            <h2 className="text-2xl font-semibold mb-4" style={{ color: '#F1F1F1' }}>Connect Your Wallet</h2>
+            <p className="mb-8" style={{ color: '#A1A1AA' }}>Connect your wallet to mint NFTs</p>
+            <ConnectButton />
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Featured Hero */}
+          {featuredDrop && (
+            <div className="mb-8 p-8 rounded-2xl relative overflow-hidden" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.2)', boxShadow: '0 0 40px rgba(212, 175, 55, 0.15)' }}>
+              <div className="absolute top-0 right-0 w-96 h-96 rounded-full" style={{ background: 'radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%)' }} />
+              
+              <div className="grid grid-cols-2 gap-8 relative z-10">
+                <div className="flex flex-col justify-center">
+                  <div className="px-3 py-1 rounded-full text-xs mb-4 w-fit" style={{ background: 'rgba(212, 175, 55, 0.2)', color: '#D4AF37', border: '1px solid rgba(212, 175, 55, 0.3)' }}>
+                    Featured Collection
+                  </div>
+                  
+                  <h2 className="text-4xl mb-4" style={{ color: '#D4AF37' }}>{featuredDrop.name}</h2>
+                  
+                  <p className="mb-6" style={{ color: '#A1A1AA' }}>
+                    {featuredDrop.description || 'Exclusive NFT collection with special benefits and rewards.'}
+                  </p>
+                  
+                  <div className="grid grid-cols-3 gap-4 mb-6">
+                    <div>
+                      <div className="text-sm mb-1" style={{ color: '#A1A1AA' }}>Total Supply</div>
+                      <div className="text-xl" style={{ color: '#F1F1F1' }}>{featuredDrop.totalSupply || 'N/A'}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm mb-1" style={{ color: '#A1A1AA' }}>Minted</div>
+                      <div className="text-xl" style={{ color: '#F1F1F1' }}>{featuredDrop.mintedCount || '0'}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm mb-1" style={{ color: '#A1A1AA' }}>Price</div>
+                      <div className="text-xl" style={{ color: '#D4AF37' }}>{featuredDrop.priceUSD ? `$${featuredDrop.priceUSD}` : 'TBA'}</div>
+                    </div>
+                  </div>
+                  
+                  <button className="w-fit px-8 h-12 rounded-lg font-medium transition-all hover:opacity-90" style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%)', color: '#0A0A0A' }}>
+                    Mint Now
+                  </button>
+                </div>
+                
+                <div className="flex items-center justify-center">
+                  {featuredDrop.imageUrl ? (
+                    <div className="w-80 h-80 rounded-2xl overflow-hidden" style={{ border: '2px solid rgba(212, 175, 55, 0.3)', boxShadow: '0 0 30px rgba(212, 175, 55, 0.2)' }}>
+                      <img 
+                        src={featuredDrop.imageUrl}
+                        alt={featuredDrop.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-80 h-80 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(212, 175, 55, 0.1)', border: '2px solid rgba(212, 175, 55, 0.3)' }}>
+                      <Rocket className="w-24 h-24" style={{ color: '#D4AF37' }} />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Tabs */}
+          <div className="mb-6">
+            <div className="flex gap-2 p-1 rounded-lg w-fit" style={{ background: '#111111', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+              <button
+                onClick={() => setActiveTab('live')}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all"
+                style={{
+                  background: activeTab === 'live' ? 'rgba(212, 175, 55, 0.2)' : 'transparent',
+                  color: activeTab === 'live' ? '#D4AF37' : '#A1A1AA'
+                }}
+              >
+                <CheckCircle className="w-4 h-4" />
+                Live
+              </button>
+              <button
+                onClick={() => setActiveTab('upcoming')}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all"
+                style={{
+                  background: activeTab === 'upcoming' ? 'rgba(212, 175, 55, 0.2)' : 'transparent',
+                  color: activeTab === 'upcoming' ? '#D4AF37' : '#A1A1AA'
+                }}
+              >
+                <Clock className="w-4 h-4" />
+                Upcoming
+              </button>
+              <button
+                onClick={() => setActiveTab('archived')}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all"
+                style={{
+                  background: activeTab === 'archived' ? 'rgba(212, 175, 55, 0.2)' : 'transparent',
+                  color: activeTab === 'archived' ? '#D4AF37' : '#A1A1AA'
+                }}
+              >
+                <Rocket className="w-4 h-4" />
+                Archived
+              </button>
+            </div>
+          </div>
+
+          {/* Content */}
+          {loading ? (
+            <div className="grid grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="rounded-2xl overflow-hidden animate-pulse" style={{ background: 'rgba(17, 17, 17, 0.6)' }}>
+                  <div className="h-64" style={{ background: 'rgba(10, 10, 10, 0.5)' }}></div>
+                  <div className="p-5 space-y-3">
+                    <div className="h-6 rounded" style={{ background: 'rgba(10, 10, 10, 0.5)', width: '75%' }}></div>
+                    <div className="h-4 rounded" style={{ background: 'rgba(10, 10, 10, 0.5)', width: '50%' }}></div>
+                    <div className="h-4 rounded" style={{ background: 'rgba(10, 10, 10, 0.5)' }}></div>
+                    <div className="h-10 rounded" style={{ background: 'rgba(10, 10, 10, 0.5)' }}></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : drops.length === 0 ? (
+            <div className="text-center py-16">
+              <Rocket className="w-16 h-16 mx-auto mb-4 opacity-50" style={{ color: '#A1A1AA' }} />
+              <h3 className="text-xl mb-2" style={{ color: '#F1F1F1' }}>
+                {activeTab === 'live' ? 'No Live Drops' : activeTab === 'upcoming' ? 'No Upcoming Drops' : 'No Archived Collections'}
+              </h3>
+              <p style={{ color: '#A1A1AA' }}>
+                {activeTab === 'live' ? 'All current drops have ended' : activeTab === 'upcoming' ? 'New drops are being prepared' : 'Past drops will appear here'}
+              </p>
+            </div>
+          ) : (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="grid grid-cols-3 gap-6"
             >
-              <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-4">
-                <div className="text-2xl font-bold text-purple-400">{stats.totalDrops}</div>
-                <div className="text-sm text-gray-400">Total Drops</div>
-              </div>
-              <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-4">
-                <div className="text-2xl font-bold text-green-400">{stats.liveDrops}</div>
-                <div className="text-sm text-gray-400">Live Now</div>
-              </div>
-              <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-4">
-                <div className="text-2xl font-bold text-yellow-400">${stats.totalRaised.toFixed(0)}K</div>
-                <div className="text-sm text-gray-400">Total Raised</div>
-              </div>
-              <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-4">
-                <div className="text-2xl font-bold text-blue-400">{stats.totalParticipants}</div>
-                <div className="text-sm text-gray-400">Participants</div>
-              </div>
+              {drops.map((drop) => (
+                <DropCard key={drop.id} drop={drop} />
+              ))}
             </motion.div>
           )}
-        </motion.div>
 
-        {/* Connect Wallet Banner */}
-        {!isConnected && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 backdrop-blur-sm border border-blue-500/30 rounded-xl p-6 mb-8 text-center"
-          >
-            <h3 className="text-xl font-bold mb-2">Connect Your Wallet</h3>
-            <p className="text-gray-300 mb-4">Connect your Web3 wallet to participate in NFT drops and access exclusive features</p>
-            <ConnectButton />
-          </motion.div>
-        )}
-
-        {/* Tabs */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="flex justify-center mb-8"
-        >
-          <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-2">
-            <div className="flex space-x-1">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
-                    activeTab === tab.id
-                      ? 'bg-purple-600 text-white shadow-lg transform scale-105'
-                      : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
-                  }`}
-                >
-                  <span className="mr-2">{tab.icon}</span>
-                  {tab.label}
-                </button>
+          {/* Partner Logos */}
+          <div className="mt-12 p-8 rounded-2xl" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+            <h3 className="text-center mb-6" style={{ color: '#A1A1AA' }}>Trusted Partners</h3>
+            <div className="flex items-center justify-center gap-12">
+              {['OpenSea', 'Rarible', 'SuperRare', 'Foundation', 'Nifty'].map((partner, index) => (
+                <div key={index} className="text-xl opacity-50 hover:opacity-100 transition-opacity" style={{ color: '#F1F1F1' }}>
+                  {partner}
+                </div>
               ))}
             </div>
           </div>
-        </motion.div>
-
-        {/* Tab Content */}
-        <motion.div
-          key={activeTab}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-12"
-        >
-          {renderTabContent()}
-        </motion.div>
-
-        {/* Features Grid */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
-        >
-          <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center">
-            <div className="text-4xl mb-4">💎</div>
-            <h3 className="text-xl font-bold mb-2">Curated Collections</h3>
-            <p className="text-gray-400">Hand-picked NFT projects from verified partners with strong communities and roadmaps.</p>
-          </div>
-          
-          <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center">
-            <div className="text-4xl mb-4">🪙</div>
-            <h3 className="text-xl font-bold mb-2">SHAH Token Benefits</h3>
-            <p className="text-gray-400">Get exclusive discounts and early access when paying with SHAH tokens.</p>
-          </div>
-          
-          <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center">
-            <div className="text-4xl mb-4">🔒</div>
-            <h3 className="text-xl font-bold mb-2">Secure & Verified</h3>
-            <p className="text-gray-400">All contracts are audited and partners are thoroughly vetted for security and legitimacy.</p>
-          </div>
-        </motion.div>
-
-        {/* CTA Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="text-center"
-        >
-          <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 backdrop-blur-sm border border-purple-500/30 rounded-xl p-8">
-            <h3 className="text-2xl font-bold mb-4">Want to Launch Your Collection?</h3>
-            <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-              Partner with SHAH Launchpad to reach thousands of collectors and investors. Get access to our curated audience and marketing support.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="mailto:partnerships@shah.vip"
-                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-colors"
-              >
-                📧 Contact Partnerships
-              </a>
-              <a
-                href="/factory"
-                className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-xl font-medium transition-colors"
-              >
-                🏭 Create Your Token
-              </a>
-            </div>
-          </div>
-        </motion.div>
-      </div>
-    </main>
+        </>
+      )}
+    </div>
   )
 }
