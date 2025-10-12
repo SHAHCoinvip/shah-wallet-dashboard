@@ -1,33 +1,36 @@
-import { useContractWrite, usePrepareContractWrite } from 'wagmi'
-import ShahStakingABI from '@/abi/ShahStaking.json'
+import { useWriteContract } from 'wagmi'
+import { SHAH_STAKING_ABI } from '@/abi/ShahStakingABI'
 
 const contractAddress = '0xe6D1B29CCfd7b65C94d30cc22Db8Ebe88692CCC0'
 
 export const useShahStakingActions = () => {
-  const { config: stakeConfig } = usePrepareContractWrite({
-    address: contractAddress,
-    abi: ShahStakingABI,
-    functionName: 'stake',
-    args: [], // Pass amount if needed
-  })
+  const { writeContract } = useWriteContract()
 
-  const { config: unstakeConfig } = usePrepareContractWrite({
-    address: contractAddress,
-    abi: ShahStakingABI,
-    functionName: 'unstake',
-    args: [],
-  })
+  const stake = async (amount: bigint) => {
+    return await writeContract({
+      address: contractAddress as `0x${string}`,
+      abi: SHAH_STAKING_ABI,
+      functionName: 'stake',
+      args: [amount],
+    })
+  }
 
-  const { config: claimConfig } = usePrepareContractWrite({
-    address: contractAddress,
-    abi: ShahStakingABI,
-    functionName: 'claimRewards',
-  })
+  const unstake = async (amount: bigint) => {
+    return await writeContract({
+      address: contractAddress as `0x${string}`,
+      abi: SHAH_STAKING_ABI,
+      functionName: 'unstake',
+      args: [amount],
+    })
+  }
 
-  const stake = useContractWrite(stakeConfig)
-  const unstake = useContractWrite(unstakeConfig)
-  const claim = useContractWrite(claimConfig)
+  const claimRewards = async () => {
+    return await writeContract({
+      address: contractAddress as `0x${string}`,
+      abi: SHAH_STAKING_ABI,
+      functionName: 'claimRewards',
+    })
+  }
 
-  return { stake, unstake, claim }
+  return { stake, unstake, claimRewards }
 }
-
