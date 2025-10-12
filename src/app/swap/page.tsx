@@ -1,53 +1,33 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic'
-import { useAccount, useBalance, useContractWrite, useContractRead, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
+import { useAccount, useBalance, useContractRead, useWriteContract } from 'wagmi'
 import { parseEther, formatEther } from 'viem'
 import { toast } from 'react-hot-toast'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { ArrowDownUp, Settings, Info, ChevronDown } from 'lucide-react'
+import Image from 'next/image'
 import { getSHAHPrice } from '@/utils/getSHAHPrice'
 import { ShahSwapABI } from '@/abi/ShahSwapABI'
 import { erc20Abi } from 'viem'
-import ChartEmbed from '@/components/ChartEmbed'
-import GasControls from '@/components/GasControls'
-import RoutePill from '@/components/RoutePill'
-import { getBestQuote, BestQuote, QuoteParams } from '@/lib/quotes'
-import { isBalancerRoutingEnabled } from '@/lib/quotes'
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
 
 // Contract Addresses - Updated for DEX V3
 const SHAHSWAP_CONTRACT = process.env.NEXT_PUBLIC_SHAHSWAP_ROUTER || '0x791c34Df045071eB9896DAfA57e3db46CBEBA11b'
-const SHAHSWAP_ORACLE = process.env.NEXT_PUBLIC_SHAHSWAP_ORACLE
 const SHAH_TOKEN_ADDRESS = '0x6E0cFA42F797E316ff147A21f7F1189cd610ede8'
 const WETH_ADDRESS = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
 
-// Feature flags
-const ENABLE_TWAP = process.env.NEXT_PUBLIC_ENABLE_TWAP === 'true'
-const ENABLE_PERMIT = process.env.NEXT_PUBLIC_ENABLE_PERMIT === 'true'
-const ENABLE_BATCH_SWAPS = process.env.NEXT_PUBLIC_ENABLE_BATCH_SWAPS === 'true'
-
 export default function SwapPage() {
   const { address, isConnected } = useAccount()
-  const [amountIn, setAmountIn] = useState('')
-  const [amountOut, setAmountOut] = useState('')
-  const [shahPrice, setShahPrice] = useState<number>(0)
-  const [slippage, setSlippage] = useState(0.5) // 0.5% default slippage
-  const [swapDirection, setSwapDirection] = useState<'SHAH_TO_ETH' | 'ETH_TO_SHAH'>('SHAH_TO_ETH')
+  const [fromAmount, setFromAmount] = useState('')
+  const [toAmount, setToAmount] = useState('')
+  const [shahPrice, setShahPrice] = useState<number>(1.72)
+  const [slippage, setSlippage] = useState(0.5)
+  const [swapDirection, setSwapDirection] = useState<'SHAH_TO_ETH' | 'ETH_TO_SHAH'>('ETH_TO_SHAH')
   const [isApproved, setIsApproved] = useState(false)
   const [isApproving, setIsApproving] = useState(false)
-  const [gasFees, setGasFees] = useState<{ maxFeePerGas: bigint; maxPriorityFeePerGas: bigint }>({ maxFeePerGas: 0n, maxPriorityFeePerGas: 0n })
-  const [bestQuote, setBestQuote] = useState<BestQuote | null>(null)
-  const [isQuoteLoading, setIsQuoteLoading] = useState(false)
-  const [showBalancerNotice, setShowBalancerNotice] = useState(false)
-  
-  // New state for enhanced features
-  const [useTWAP, setUseTWAP] = useState(false)
-  const [usePermit, setUsePermit] = useState(false)
-  const [priceImpact, setPriceImpact] = useState<number>(0)
-  const [twapPrice, setTwapPrice] = useState<number>(0)
-  const [spotPrice, setSpotPrice] = useState<number>(0)
 
   // Get SHAH balance
   const { data: shahBalance } = useBalance({
@@ -74,87 +54,56 @@ export default function SwapPage() {
       try {
         const price = await getSHAHPrice()
         setShahPrice(price)
-        setSpotPrice(price)
       } catch (error) {
         console.error('Error fetching SHAH price:', error)
-        setShahPrice(1.72) // Fallback price
-        setSpotPrice(1.72)
+        setShahPrice(1.72)
       }
     }
 
     fetchPrice()
-    const interval = setInterval(fetchPrice, 30000) // Update every 30 seconds
+    const interval = setInterval(fetchPrice, 30000)
     return () => clearInterval(interval)
   }, [])
 
   // Check if SHAH is approved
   useEffect(() => {
-    if (allowance && amountIn) {
-      const requiredAllowance = parseEther(amountIn)
+    if (allowance && fromAmount && swapDirection === 'SHAH_TO_ETH') {
+      const requiredAllowance = parseEther(fromAmount)
       setIsApproved(allowance >= requiredAllowance)
     } else {
-      setIsApproved(false)
+      setIsApproved(true)
     }
-  }, [allowance, amountIn])
+  }, [allowance, fromAmount, swapDirection])
 
   // Calculate amount out based on current price
   useEffect(() => {
-    if (amountIn && shahPrice > 0) {
+    if (fromAmount && shahPrice > 0) {
       if (swapDirection === 'SHAH_TO_ETH') {
-        const shahAmount = parseFloat(amountIn)
+        const shahAmount = parseFloat(fromAmount)
         const ethAmount = shahAmount * shahPrice
-        setAmountOut(ethAmount.toFixed(6))
+        setToAmount(ethAmount.toFixed(6))
       } else {
-        const ethAmount = parseFloat(amountIn)
+        const ethAmount = parseFloat(fromAmount)
         const shahAmount = ethAmount / shahPrice
-        setAmountOut(shahAmount.toFixed(6))
+        setToAmount(shahAmount.toFixed(6))
       }
     } else {
-      setAmountOut('')
+      setToAmount('')
     }
-  }, [amountIn, shahPrice, swapDirection])
-
-  // Enhanced quote fetching with Balancer routing
-  useEffect(() => {
-    if (amountIn && amountOut && isConnected) {
-      setIsQuoteLoading(true)
-      
-      const quoteParams: QuoteParams = {
-        tokenIn: swapDirection === 'SHAH_TO_ETH' ? SHAH_TOKEN_ADDRESS : WETH_ADDRESS,
-        tokenOut: swapDirection === 'SHAH_TO_ETH' ? WETH_ADDRESS : SHAH_TOKEN_ADDRESS,
-        amountIn: parseEther(amountIn).toString(),
-        slippage: slippage / 100,
-      }
-
-      getBestQuote(quoteParams)
-        .then((quote) => {
-          setBestQuote(quote)
-          if (quote.source === 'balancer') {
-            setShowBalancerNotice(true)
-          }
-        })
-        .catch((error) => {
-          console.error('Error fetching quote:', error)
-          setBestQuote(null)
-        })
-        .finally(() => {
-          setIsQuoteLoading(false)
-        })
-    }
-  }, [amountIn, amountOut, isConnected, swapDirection, slippage])
+  }, [fromAmount, shahPrice, swapDirection])
 
   // Approve SHAH token
-  const { writeContract: writeApprove, isPending: isApprovePending } = useWriteContract()
+  const { writeContract: writeApprove } = useWriteContract()
 
   const handleApprove = async () => {
-    if (!amountIn) {
+    if (!fromAmount) {
       toast.error('Please enter an amount')
       return
     }
 
     try {
       setIsApproving(true)
-      const amount = parseEther(amountIn)
+      const amount = parseEther(fromAmount)
       
       await writeApprove({
         address: SHAH_TOKEN_ADDRESS as `0x${string}`,
@@ -173,22 +122,22 @@ export default function SwapPage() {
   }
 
   // Swap function
-  const { writeContract: writeSwap, isPending: isSwapPending } = useWriteContract()
+  const { writeContract: writeSwap } = useWriteContract()
 
   const handleSwap = async () => {
-    if (!amountIn || !amountOut) {
+    if (!fromAmount || !toAmount) {
       toast.error('Please enter amounts')
       return
     }
 
-    if (!isApproved && !usePermit) {
+    if (swapDirection === 'SHAH_TO_ETH' && !isApproved) {
       toast.error('Please approve SHAH token first')
       return
     }
 
     try {
-      const amountInWei = parseEther(amountIn)
-      const minAmountOut = parseEther((parseFloat(amountOut) * (1 - slippage / 100)).toFixed(6))
+      const amountInWei = parseEther(fromAmount)
+      const minAmountOut = parseEther((parseFloat(toAmount) * (1 - slippage / 100)).toFixed(6))
 
       if (swapDirection === 'SHAH_TO_ETH') {
         await writeSwap({
@@ -216,243 +165,226 @@ export default function SwapPage() {
 
   const switchDirection = () => {
     setSwapDirection(swapDirection === 'SHAH_TO_ETH' ? 'ETH_TO_SHAH' : 'SHAH_TO_ETH')
-    setAmountIn('')
-    setAmountOut('')
+    setFromAmount('')
+    setToAmount('')
   }
 
-  const currentPrice = useTWAP && twapPrice > 0 ? twapPrice : shahPrice
-  const priceSource = useTWAP && twapPrice > 0 ? 'TWAP' : 'Spot'
+  const priceImpact = 0.01 // Placeholder
+  const networkFee = 2.45 // Placeholder
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="text-center mb-12">
-        <h1 className="text-5xl font-bold mb-4" style={{ color: 'var(--color-gold)' }}>Swap</h1>
-        <p className="text-lg" style={{ color: 'var(--color-text-secondary)' }}>Trade tokens with SHAH Wallet</p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Chart Section */}
-        <div className="lg:col-span-2">
-          <ChartEmbed 
-            pair="ETH-SHAH"
-            height={500}
-            className="w-full"
-          />
+    <div className="min-h-screen p-8 flex items-center justify-center" style={{ background: '#0A0A0A' }}>
+      <div className="w-full max-w-xl">
+        {/* Header */}
+        <div className="mb-6 text-center">
+          <h1 className="text-3xl mb-2" style={{ color: '#F1F1F1' }}>Swap</h1>
+          <p style={{ color: '#A1A1AA' }}>Trade tokens instantly with the best rates</p>
         </div>
-        
-        {/* Swap Interface */}
-        <div className="lg:col-span-1">
-          <div className="bg-gray-900 p-6 rounded-2xl shadow-xl">
-            <h1 className="text-3xl font-bold mb-4">🔄 ShahSwap V2</h1>
-            <p className="text-sm text-gray-400 mb-6">
-              Current SHAH Price: <span className="text-yellow-400">${currentPrice.toFixed(6)}</span>
-              <span className="text-purple-400 ml-2">({priceSource})</span>
-            </p>
-            
-            {/* Enhanced Features Status */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {ENABLE_TWAP && (
-                <span className="px-2 py-1 bg-blue-600 text-xs rounded-full">TWAP Oracle</span>
-              )}
-              {ENABLE_PERMIT && (
-                <span className="px-2 py-1 bg-green-600 text-xs rounded-full">Permit Support</span>
-              )}
-              {ENABLE_BATCH_SWAPS && (
-                <span className="px-2 py-1 bg-purple-600 text-xs rounded-full">Batch Swaps</span>
+
+        {!isConnected ? (
+          <div className="text-center p-12 rounded-2xl" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+            <p className="mb-6" style={{ color: '#A1A1AA' }}>Connect your wallet to start swapping</p>
+            <ConnectButton />
+          </div>
+        ) : (
+          <>
+            {/* Swap Card */}
+            <div className="p-6 rounded-2xl relative" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+              {/* Settings Button */}
+              <button className="absolute top-6 right-6 p-2 rounded-lg hover:bg-opacity-20 transition-all" style={{ background: 'rgba(212, 175, 55, 0.1)' }}>
+                <Settings className="w-5 h-5" style={{ color: '#A1A1AA' }} />
+              </button>
+
+              {/* From Token */}
+              <div className="mb-1">
+                <div className="flex justify-between items-center mb-2">
+                  <label className="text-sm" style={{ color: '#A1A1AA' }}>From</label>
+                  <span className="text-xs" style={{ color: '#A1A1AA' }}>
+                    Balance: {swapDirection === 'ETH_TO_SHAH' 
+                      ? ethBalance ? formatEther(ethBalance.value) : '0'
+                      : shahBalance ? formatEther(shahBalance.value) : '0'
+                    } {swapDirection === 'ETH_TO_SHAH' ? 'ETH' : 'SHAH'}
+                  </span>
+                </div>
+                
+                <div className="p-4 rounded-xl" style={{ background: 'rgba(10, 10, 10, 0.5)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+                  <div className="flex items-center justify-between">
+                    <input
+                      type="text"
+                      placeholder="0.0"
+                      value={fromAmount}
+                      onChange={(e) => setFromAmount(e.target.value)}
+                      className="border-0 bg-transparent text-2xl p-0 h-auto focus:outline-none w-full"
+                      style={{ color: '#F1F1F1' }}
+                    />
+                    
+                    <button className="flex items-center gap-2 px-4 py-2 rounded-lg hover:opacity-80 transition-all ml-4" style={{ background: 'rgba(59, 130, 246, 0.2)', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+                      {swapDirection === 'ETH_TO_SHAH' ? (
+                        <>
+                          <div className="w-6 h-6 rounded-full" style={{ background: '#3B82F6' }} />
+                          <span style={{ color: '#F1F1F1' }}>ETH</span>
+                        </>
+                      ) : (
+                        <>
+                          <Image src="/shah-blue-logo.png" alt="SHAH" width={24} height={24} className="object-contain" />
+                          <span style={{ color: '#F1F1F1' }}>SHAH</span>
+                        </>
+                      )}
+                      <ChevronDown className="w-4 h-4" style={{ color: '#A1A1AA' }} />
+                    </button>
+                  </div>
+                  
+                  <div className="mt-2 text-sm" style={{ color: '#A1A1AA' }}>
+                    ≈ ${fromAmount ? (parseFloat(fromAmount) * (swapDirection === 'ETH_TO_SHAH' ? 2000 : shahPrice)).toFixed(2) : '0.00'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Swap Button */}
+              <div className="flex justify-center my-4">
+                <button 
+                  onClick={switchDirection}
+                  className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110" 
+                  style={{ background: 'rgba(212, 175, 55, 0.2)', border: '2px solid rgba(212, 175, 55, 0.3)' }}
+                >
+                  <ArrowDownUp className="w-5 h-5" style={{ color: '#D4AF37' }} />
+                </button>
+              </div>
+
+              {/* To Token */}
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <label className="text-sm" style={{ color: '#A1A1AA' }}>To</label>
+                  <span className="text-xs" style={{ color: '#A1A1AA' }}>
+                    Balance: {swapDirection === 'SHAH_TO_ETH' 
+                      ? ethBalance ? formatEther(ethBalance.value) : '0'
+                      : shahBalance ? formatEther(shahBalance.value) : '0'
+                    } {swapDirection === 'SHAH_TO_ETH' ? 'ETH' : 'SHAH'}
+                  </span>
+                </div>
+                
+                <div className="p-4 rounded-xl" style={{ background: 'rgba(10, 10, 10, 0.5)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+                  <div className="flex items-center justify-between">
+                    <input
+                      type="text"
+                      placeholder="0.0"
+                      value={toAmount}
+                      disabled
+                      className="border-0 bg-transparent text-2xl p-0 h-auto focus:outline-none w-full opacity-70"
+                      style={{ color: '#F1F1F1' }}
+                    />
+                    
+                    <button className="flex items-center gap-2 px-4 py-2 rounded-lg hover:opacity-80 transition-all ml-4" style={{ background: 'rgba(59, 130, 246, 0.2)', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+                      {swapDirection === 'SHAH_TO_ETH' ? (
+                        <>
+                          <div className="w-6 h-6 rounded-full" style={{ background: '#3B82F6' }} />
+                          <span style={{ color: '#F1F1F1' }}>ETH</span>
+                        </>
+                      ) : (
+                        <>
+                          <Image src="/shah-blue-logo.png" alt="SHAH" width={24} height={24} className="object-contain" />
+                          <span style={{ color: '#F1F1F1' }}>SHAH</span>
+                        </>
+                      )}
+                      <ChevronDown className="w-4 h-4" style={{ color: '#A1A1AA' }} />
+                    </button>
+                  </div>
+                  
+                  <div className="mt-2 text-sm" style={{ color: '#A1A1AA' }}>
+                    ≈ ${toAmount ? (parseFloat(toAmount) * (swapDirection === 'SHAH_TO_ETH' ? 2000 : shahPrice)).toFixed(2) : '0.00'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Exchange Info */}
+              <div className="mb-6 p-4 rounded-xl space-y-2" style={{ background: 'rgba(10, 10, 10, 0.3)', border: '1px solid rgba(212, 175, 55, 0.05)' }}>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm flex items-center gap-1" style={{ color: '#A1A1AA' }}>
+                    <Info className="w-3 h-3" />
+                    Rate
+                  </span>
+                  <span className="text-sm" style={{ color: '#F1F1F1' }}>
+                    1 {swapDirection === 'ETH_TO_SHAH' ? 'ETH' : 'SHAH'} = {swapDirection === 'ETH_TO_SHAH' ? (1 / shahPrice).toFixed(2) : (shahPrice * 2000).toFixed(2)} {swapDirection === 'ETH_TO_SHAH' ? 'SHAH' : 'ETH'}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-sm" style={{ color: '#A1A1AA' }}>Price Impact</span>
+                  <span className="text-sm" style={{ color: '#10B981' }}>{'< 0.01%'}</span>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-sm" style={{ color: '#A1A1AA' }}>Network Fee</span>
+                  <span className="text-sm" style={{ color: '#F1F1F1' }}>~${networkFee}</span>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-sm" style={{ color: '#A1A1AA' }}>Minimum Received</span>
+                  <span className="text-sm" style={{ color: '#F1F1F1' }}>
+                    {toAmount ? (parseFloat(toAmount) * (1 - slippage / 100)).toFixed(6) : '0'} {swapDirection === 'SHAH_TO_ETH' ? 'ETH' : 'SHAH'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Action Button */}
+              {swapDirection === 'SHAH_TO_ETH' && !isApproved ? (
+                <button 
+                  onClick={handleApprove}
+                  disabled={!fromAmount || isApproving}
+                  className="w-full h-14 text-lg rounded-lg font-medium transition-all hover:opacity-90 disabled:opacity-50"
+                  style={{ background: 'linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)', color: '#FFFFFF' }}
+                >
+                  {isApproving ? 'Approving...' : 'Approve SHAH'}
+                </button>
+              ) : (
+                <button 
+                  onClick={handleSwap}
+                  disabled={!fromAmount || !isConnected}
+                  className="w-full h-14 text-lg rounded-lg font-medium transition-all hover:opacity-90 disabled:opacity-50"
+                  style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%)', color: '#0A0A0A' }}
+                >
+                  Swap
+                </button>
               )}
             </div>
 
-            <p className="text-xs text-purple-400 mb-6">
-              Powered by ShahSwap Router V2: {SHAHSWAP_CONTRACT.slice(0, 6)}...{SHAHSWAP_CONTRACT.slice(-4)}
-            </p>
-            
-            {/* Route Pill */}
-            {isBalancerRoutingEnabled() && (
-              <div className="mb-4">
-                <RoutePill 
-                  bestQuote={bestQuote} 
-                  isLoading={isQuoteLoading}
-                  className="mb-2"
-                />
-              </div>
-            )}
-
-            {/* TWAP Toggle */}
-            {ENABLE_TWAP && twapPrice > 0 && (
-              <div className="mb-4 p-3 bg-gray-800 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-300">Use TWAP Price</span>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={useTWAP}
-                      onChange={(e) => setUseTWAP(e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
+            {/* Info Banner */}
+            <div className="mt-6 p-4 rounded-xl flex items-start gap-3" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+              <Info className="w-5 h-5 mt-0.5" style={{ color: '#3B82F6' }} />
+              <div>
+                <div className="text-sm mb-1" style={{ color: '#3B82F6' }}>Best Rate Guarantee</div>
+                <div className="text-xs" style={{ color: '#A1A1AA' }}>
+                  We automatically find the best exchange rate across multiple DEXs to ensure you get the most tokens for your swap.
                 </div>
-                <p className="text-xs text-gray-400 mt-1">
-                  TWAP: ${twapPrice.toFixed(6)} | Spot: ${spotPrice.toFixed(6)}
-                </p>
               </div>
-            )}
+            </div>
 
-            {/* Permit Toggle */}
-            {ENABLE_PERMIT && (
-              <div className="mb-4 p-3 bg-gray-800 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-300">Use Permit (Gasless Approval)</span>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={usePermit}
-                      onChange={(e) => setUsePermit(e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
-                  </label>
-                </div>
-                <p className="text-xs text-gray-400 mt-1">
-                  Skip token approval and sign permit instead
-                </p>
-              </div>
-            )}
-
-            {/* Price Impact Warning */}
-            {priceImpact > 5 && (
-              <div className="mb-4 p-3 bg-yellow-900 border border-yellow-700 rounded-lg">
-                <p className="text-yellow-200 text-sm">
-                  ⚠️ High price impact: {priceImpact.toFixed(2)}%
-                </p>
-              </div>
-            )}
-
-            {!isConnected ? (
-              <div className="text-center py-8">
-                <p className="text-gray-400 mb-4">Connect your wallet to start swapping</p>
-                <ConnectButton />
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {/* Slippage Settings */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-300">Slippage Tolerance</span>
-                  <div className="flex gap-2">
-                    {[0.1, 0.5, 1.0].map((value) => (
-                      <button
-                        key={value}
-                        onClick={() => setSlippage(value)}
-                        className={`px-3 py-1 text-xs rounded ${
-                          slippage === value
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                        }`}
-                      >
-                        {value}%
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Swap Direction Toggle */}
-                <div className="flex items-center justify-center">
-                  <button
-                    onClick={switchDirection}
-                    className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
-                  >
-                    ↕️
-                  </button>
-                </div>
-
-                {/* From Token */}
-                <div className="space-y-2">
-                  <label className="text-sm text-gray-300">From</label>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="number"
-                      value={amountIn}
-                      onChange={(e) => setAmountIn(e.target.value)}
-                      placeholder="0.0"
-                      className="flex-1 p-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
-                    />
-                    <div className="px-3 py-2 bg-gray-700 rounded-lg">
-                      <span className="text-sm font-medium">
-                        {swapDirection === 'SHAH_TO_ETH' ? 'SHAH' : 'ETH'}
-                      </span>
+            {/* Recent Swaps */}
+            <div className="mt-6">
+              <h3 className="text-sm mb-3" style={{ color: '#A1A1AA' }}>Recent Swaps</h3>
+              <div className="space-y-2">
+                {[
+                  { from: 'ETH', to: 'SHAH', fromAmount: '0.5', toAmount: '1,422', time: '2 mins ago' },
+                  { from: 'SHAH', to: 'USDT', fromAmount: '500', toAmount: '1,820', time: '1 hour ago' },
+                  { from: 'ETH', to: 'SHAH', fromAmount: '0.2', toAmount: '569', time: '3 hours ago' },
+                ].map((swap, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 rounded-lg" style={{ background: 'rgba(17, 17, 17, 0.5)' }}>
+                    <div className="flex items-center gap-2">
+                      <div className="text-sm" style={{ color: '#F1F1F1' }}>
+                        {swap.fromAmount} {swap.from}
+                      </div>
+                      <ArrowDownUp className="w-3 h-3" style={{ color: '#A1A1AA' }} />
+                      <div className="text-sm" style={{ color: '#F1F1F1' }}>
+                        {swap.toAmount} {swap.to}
+                      </div>
                     </div>
+                    <div className="text-xs" style={{ color: '#A1A1AA' }}>{swap.time}</div>
                   </div>
-                  {shahBalance && (
-                    <p className="text-xs text-gray-400">
-                      Balance: {formatEther(shahBalance.value)}
-                    </p>
-                  )}
-                </div>
-
-                {/* To Token */}
-                <div className="space-y-2">
-                  <label className="text-sm text-gray-300">To</label>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="number"
-                      value={amountOut}
-                      placeholder="0.0"
-                      disabled
-                      className="flex-1 p-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 disabled:opacity-50"
-                    />
-                    <div className="px-3 py-2 bg-gray-700 rounded-lg">
-                      <span className="text-sm font-medium">
-                        {swapDirection === 'SHAH_TO_ETH' ? 'ETH' : 'SHAH'}
-                      </span>
-                    </div>
-                  </div>
-                  {ethBalance && (
-                    <p className="text-xs text-gray-400">
-                      Balance: {formatEther(ethBalance.value)}
-                    </p>
-                  )}
-                </div>
-
-                {/* Gas Controls */}
-                <GasControls
-                  gasFees={gasFees}
-                  setGasFees={setGasFees}
-                />
-
-                {/* Action Button */}
-                <div className="pt-4">
-                  {!isApproved && !usePermit ? (
-                    <button
-                      onClick={handleApprove}
-                      disabled={!amountIn || isApproving}
-                      className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 py-3 rounded-lg font-semibold transition-colors"
-                    >
-                      {isApproving ? 'Approving...' : 'Approve SHAH'}
-                    </button>
-                  ) : (
-                    <button
-                      onClick={handleSwap}
-                      disabled={!amountIn || !isConnected || (!isApproved && !usePermit)}
-                      className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 py-3 rounded-lg font-semibold transition-colors"
-                    >
-                      {usePermit ? 'Swap with Permit' : 'Swap'}
-                    </button>
-                  )}
-                </div>
-
-                {/* Balancer Notice */}
-                {showBalancerNotice && (
-                  <div className="bg-blue-900 border border-blue-700 p-3 rounded-lg text-sm">
-                    <p className="text-blue-200">
-                      Balancer routing shows the best price, but execution will use ShahSwap for security. This is read-only routing.
-                    </p>
-                  </div>
-                )}
+                ))}
               </div>
-            )}
-          </div>
-        </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

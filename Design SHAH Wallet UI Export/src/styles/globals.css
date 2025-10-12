@@ -138,8 +138,6 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #0A0A0A;
-    color: #F1F1F1;
   }
 }
 
@@ -220,7 +218,3 @@ html {
 .blue-glow {
   box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
 }
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;

@@ -1,25 +1,38 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic'
 import { useAccount } from 'wagmi'
-// import { fetchErc20Balances, fetchEthBalance } from '@/utils/fetchTokenBalances'
+import { Wallet, TrendingUp, ArrowUpRight, ArrowDownRight, Copy, ExternalLink } from 'lucide-react'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import Image from 'next/image'
+import Link from 'next/link'
+import { motion } from 'framer-motion'
 import { getAiTip } from '@/utils/aiTip'
 import TokenBarChart from '@/components/TokenBarChart'
 import VerifiedBadge from '@/components/VerifiedBadge'
 import ChartEmbed from '@/components/ChartEmbed'
 import TxHistory from '@/components/TxHistory'
-import { motion } from 'framer-motion'
-import { loadStripe } from '@stripe/stripe-js'
 import { useStakingInfo } from '@/hooks/useStakingInfo'
-import Link from 'next/link'
 import TokenRow from '@/components/TokenRow'
-// import { getNewTokens, getVerifiedTokens } from '@/lib/discovery'
 import SupabaseTest from '@/components/SupabaseTest'
+import { loadStripe } from '@stripe/stripe-js'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+
+// Chart data placeholder
+const chartData = [
+  { time: '00:00', price: 1.4 },
+  { time: '04:00', price: 1.6 },
+  { time: '08:00', price: 1.5 },
+  { time: '12:00', price: 1.72 },
+  { time: '16:00', price: 1.7 },
+  { time: '20:00', price: 1.75 },
+  { time: '24:00', price: 1.72 },
+]
 
 export default function HomePage() {
   const { address, isConnected } = useAccount()
@@ -38,12 +51,10 @@ export default function HomePage() {
 
   const fetchBalances = async (walletAddress: string) => {
     try {
-      // const eth = await fetchEthBalance(walletAddress)
-      // const tokens = await fetchErc20Balances(walletAddress)
       const eth = 0 // Placeholder
       const tokens = [] // Placeholder
 
-      setEthBalance(eth)
+      setEthBalance(eth.toString())
       setTokenBalances(tokens)
 
       const total = tokens.reduce((acc, t) => acc + (t.usdValue || 0), 0)
@@ -100,22 +111,7 @@ export default function HomePage() {
       }
 
       try {
-        const SHAH_FACTORY = process.env.NEXT_PUBLIC_SHAH_FACTORY || '0x8B33FD5A84ACb5dAf1A5ce046F65A506eB05288a'
-        const SHAH_REGISTRY = process.env.NEXT_PUBLIC_SHAH_REGISTRY || '0x26027A7cbe7BF2DD5DA9b0B7Cb0F1dd4b998d11f'
-
-        // Get top 3 tokens from each category
-        const [newTokens, verifiedResult] = await Promise.all([
-          // getNewTokens(SHAH_FACTORY).then(tokens => tokens.slice(0, 1)),
-          // getVerifiedTokens(SHAH_REGISTRY, 1, 1)
-          Promise.resolve([]), // Placeholder
-          Promise.resolve([]) // Placeholder
-        ])
-
-        const discoveryData = [
-          ...newTokens.map(token => ({ ...token, type: 'new' })),
-          ...verifiedResult.tokens.map(token => ({ ...token, type: 'verified' }))
-        ]
-
+        const discoveryData: any[] = [] // Placeholder
         setDiscoveryTokens(discoveryData)
       } catch (error) {
         console.error('Error loading discovery data:', error)
@@ -125,261 +121,271 @@ export default function HomePage() {
     loadDiscoveryData()
   }, [])
 
-  return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="text-center mb-12">
-        <h1 className="text-5xl font-bold mb-4" style={{ color: 'var(--color-gold)' }}>Dashboard</h1>
-        <p className="text-lg" style={{ color: 'var(--color-text-secondary)' }}>Welcome to your SHAH Wallet</p>
-      </div>
+  // Format address for display
+  const formatAddress = (addr: string) => {
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`
+  }
 
-      {/* Portfolio Summary */}
-      <div className="card">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-semibold mb-2" style={{ color: 'var(--color-gold)' }}>Portfolio Value</h2>
-            <p className="text-5xl font-bold" style={{ color: 'var(--color-gold)' }}>${totalUSD.toFixed(2)}</p>
-            <p className="text-sm mt-2" style={{ color: 'var(--color-text-secondary)' }}>Total Assets</p>
+  return (
+    <div className="min-h-screen p-8" style={{ background: '#0A0A0A' }}>
+      {/* Header */}
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl mb-2" style={{ color: '#F1F1F1' }}>Dashboard</h1>
+          <p style={{ color: '#A1A1AA' }}>Welcome back to your SHAH Wallet</p>
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <div className="px-4 py-2 rounded-lg" style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#3B82F6', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+            Ethereum Mainnet
           </div>
-          <div className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-2xl" style={{ backgroundColor: 'var(--color-gold)' }}>
-            <span className="text-black font-bold text-3xl">S</span>
-          </div>
+          
+          {isConnected && address && (
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg" style={{ background: '#111111', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+              <Wallet className="w-4 h-4" style={{ color: '#D4AF37' }} />
+              <span className="text-sm" style={{ color: '#F1F1F1' }}>{formatAddress(address)}</span>
+              <button className="hover:opacity-70 transition-opacity" onClick={() => navigator.clipboard.writeText(address)}>
+                <Copy className="w-4 h-4" style={{ color: '#A1A1AA' }} />
+              </button>
+            </div>
+          )}
+          
+          {!isConnected && (
+            <ConnectButton />
+          )}
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Link href="/staking">
-          <button className="btn-gold w-full">
-            🚀 Staking
-          </button>
-        </Link>
-        <Link href="/swap">
-          <button className="btn-outline w-full">
-            🔄 Swap
-          </button>
-        </Link>
-        <Link href="/farming">
-          <button className="btn-gold w-full">
-            🌾 Farming
-          </button>
-        </Link>
-      </div>
-
       {isConnected ? (
-        <motion.div layout initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <div className="card mb-4">
-            <h2 className="text-lg font-semibold mb-2 text-white">ETH Balance</h2>
-            <p className="text-2xl font-bold text-white">{ethBalance} ETH</p>
+        <>
+          {/* Balance Cards */}
+          <div className="grid grid-cols-3 gap-6 mb-8">
+            {/* ETH Balance */}
+            <div className="p-6 rounded-2xl relative overflow-hidden" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+              <div className="absolute top-0 right-0 w-32 h-32 rounded-full" style={{ background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)' }} />
+              <div className="relative">
+                <div className="text-sm mb-2" style={{ color: '#A1A1AA' }}>ETH Balance</div>
+                <div className="text-3xl mb-1" style={{ color: '#F1F1F1' }}>{ethBalance}</div>
+                <div className="text-sm flex items-center gap-1" style={{ color: '#3B82F6' }}>
+                  <TrendingUp className="w-4 h-4" />
+                  <span>${(parseFloat(ethBalance) * 2000).toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* SHAH Token */}
+            <div className="p-6 rounded-2xl relative overflow-hidden" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(59, 130, 246, 0.2)', boxShadow: '0 0 20px rgba(59, 130, 246, 0.15)' }}>
+              <div className="absolute top-0 right-0 w-32 h-32 rounded-full" style={{ background: 'radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%)' }} />
+              <div className="absolute top-4 right-4 w-12 h-12 opacity-20">
+                <Image src="/shah-blue-logo.png" alt="SHAH" width={48} height={48} className="object-contain" />
+              </div>
+              <div className="relative">
+                <div className="text-sm mb-2 flex items-center gap-2" style={{ color: '#A1A1AA' }}>
+                  <Image src="/shah-blue-logo.png" alt="SHAH" width={20} height={20} className="object-contain" />
+                  SHAH Token
+                </div>
+                <div className="text-3xl mb-1" style={{ color: '#3B82F6' }}>{amountStaked?.toString() || '0'}</div>
+                <div className="text-sm flex items-center gap-1" style={{ color: '#10B981' }}>
+                  <ArrowUpRight className="w-4 h-4" />
+                  <span>+12.5%</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Total Portfolio */}
+            <div className="p-6 rounded-2xl relative overflow-hidden" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+              <div className="absolute top-0 right-0 w-32 h-32 rounded-full" style={{ background: 'radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%)' }} />
+              <div className="relative">
+                <div className="text-sm mb-2" style={{ color: '#A1A1AA' }}>Total Portfolio</div>
+                <div className="text-3xl mb-1" style={{ color: '#F1F1F1' }}>${totalUSD.toFixed(2)}</div>
+                <div className="text-sm flex items-center gap-1" style={{ color: '#10B981' }}>
+                  <ArrowUpRight className="w-4 h-4" />
+                  <span>+8.2% (24h)</span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* SHAH Trading Chart */}
-          <motion.div layout className="mb-4">
-            <ChartEmbed 
-              pair="ETH-SHAH"
-              height={350}
-              className="w-full"
-            />
-          </motion.div>
+          {/* Quick Actions */}
+          <div className="grid grid-cols-4 gap-4 mb-8">
+            <Link href="/swap">
+              <button className="h-14 w-full rounded-lg font-medium transition-all hover:opacity-90" style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%)', color: '#0A0A0A' }}>
+                Swap
+              </button>
+            </Link>
+            <Link href="/staking">
+              <button className="h-14 w-full rounded-lg font-medium transition-all hover:opacity-90" style={{ background: '#111111', color: '#F1F1F1', border: '1px solid rgba(212, 175, 55, 0.2)' }}>
+                Stake
+              </button>
+            </Link>
+            <Link href="/farming">
+              <button className="h-14 w-full rounded-lg font-medium transition-all hover:opacity-90" style={{ background: '#111111', color: '#F1F1F1', border: '1px solid rgba(212, 175, 55, 0.2)' }}>
+                Farm
+              </button>
+            </Link>
+            <button onClick={handlePurchase} className="h-14 w-full rounded-lg font-medium transition-all hover:opacity-90" style={{ background: '#111111', color: '#F1F1F1', border: '1px solid rgba(212, 175, 55, 0.2)' }}>
+              Buy Crypto
+            </button>
+          </div>
 
-          <motion.div layout className="bg-yellow-900 p-4 rounded mb-4 shadow-xl">
-            <h2 className="text-xl font-semibold mb-1">📈 Staking Tier & NFT Boost</h2>
-            <p className="mb-1 text-sm">
-              Your SHA Balance: <span className="font-bold text-white">{amountStaked?.toString() || '0'}</span>
-            </p>
-            <p className="mb-1 text-sm">
-              SHAH GOLD NFT Owned: <span className={`font-bold ${hasNftBoost ? 'text-green-300' : 'text-red-400'}`}>{hasNftBoost ? '✅ Yes' : '❌ No'}</span>
-            </p>
-            <div className="mt-2 text-sm">
-              <p>
-                🎯 <span className="font-semibold">Your Staking Tier:</span>{' '}
-                {tier === 1
-                  ? 'Tier 1 — 10% APY'
-                  : tier === 2
-                  ? 'Tier 2 — 15% APY'
-                  : tier === 3
-                  ? 'Tier 3 — 20% APY'
-                  : '—'}
-              </p>
-              <p>
-                💎 <span className="font-semibold">NFT Boost:</span>{' '}
-                {hasNftBoost ? '+Extra rewards (enabled)' : '—'}
-              </p>
-            </div>
-            <div className="mt-3 text-xs text-gray-200">
-              <p className="mb-1">• Tier 1: 100–999 SHA → 10% APY</p>
-              <p className="mb-1">• Tier 2: 1,000–4,999 SHA → 15% APY</p>
-              <p>• Tier 3: ≥ 5,000 SHA → 20% APY</p>
-            </div>
-          </motion.div>
-
-          <motion.div layout className="bg-gray-900 p-4 rounded mb-4 shadow-xl">
-            <h2 className="text-xl font-semibold mb-2">Token Balances</h2>
-            {tokenBalances.map((token) => (
-              <motion.div
-                layout
-                initial={{ x: -10, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.1 }}
-                key={token.symbol}
-                className="flex items-center justify-between border-b border-gray-700 py-2"
-              >
+          <div className="grid grid-cols-2 gap-6 mb-8">
+            {/* Chart Widget */}
+            <div className="p-6 rounded-2xl" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-lg mb-1" style={{ color: '#F1F1F1' }}>SHAH Price</h3>
+                  <div className="text-2xl" style={{ color: '#D4AF37' }}>$1.72</div>
+                </div>
                 <div className="flex items-center gap-2">
-                  {token.logoURI && (
-                    <img src={token.logoURI} alt={token.symbol} className="w-6 h-6 rounded-full" />
-                  )}
-                  <span>{token.symbol}</span>
-                  {token.address && (
-                    <VerifiedBadge tokenAddress={token.address} className="ml-1" />
-                  )}
+                  <div className="px-3 py-1 rounded-full text-sm" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#10B981', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                    +18.2%
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p>{token.balance}</p>
-                  <p className="text-sm text-gray-400">${(token.usdValue || 0).toFixed(2)}</p>
-                  {token.address && !token.isVerified && (
-                    <Link 
-                      href="/factory/verify" 
-                      className="text-xs text-blue-400 hover:text-blue-300 underline"
-                    >
-                      Request verification
-                    </Link>
-                  )}
+              </div>
+              
+              <ResponsiveContainer width="100%" height={200}>
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(212, 175, 55, 0.1)" />
+                  <XAxis dataKey="time" stroke="#A1A1AA" style={{ fontSize: '12px' }} />
+                  <YAxis stroke="#A1A1AA" style={{ fontSize: '12px' }} />
+                  <Tooltip
+                    contentStyle={{
+                      background: '#111111',
+                      border: '1px solid rgba(212, 175, 55, 0.2)',
+                      borderRadius: '8px',
+                      color: '#F1F1F1',
+                    }}
+                  />
+                  <Line type="monotone" dataKey="price" stroke="#D4AF37" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Recent Activity - Using TxHistory */}
+            <div className="p-6 rounded-2xl" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+              <h3 className="text-lg mb-4" style={{ color: '#F1F1F1' }}>Recent Activity</h3>
+              <TxHistory limit={4} />
+            </div>
+          </div>
+
+          {/* Staking Info */}
+          {amountStaked && parseFloat(amountStaked.toString()) > 0 && (
+            <motion.div layout className="p-6 rounded-2xl mb-6" style={{ background: 'rgba(212, 175, 55, 0.1)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.2)' }}>
+              <h2 className="text-xl font-semibold mb-4" style={{ color: '#D4AF37' }}>📈 Staking Tier & NFT Boost</h2>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <div className="text-sm mb-1" style={{ color: '#A1A1AA' }}>Your SHAH Balance</div>
+                  <div className="text-2xl font-bold" style={{ color: '#F1F1F1' }}>{amountStaked?.toString() || '0'}</div>
                 </div>
-              </motion.div>
-            ))}
-          </motion.div>
+                <div>
+                  <div className="text-sm mb-1" style={{ color: '#A1A1AA' }}>Staking Tier</div>
+                  <div className="text-2xl font-bold" style={{ color: '#D4AF37' }}>
+                    {tier === 1 ? 'Bronze (10%)' : tier === 2 ? 'Silver (15%)' : tier === 3 ? 'Gold (20%)' : 'None'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm mb-1" style={{ color: '#A1A1AA' }}>NFT Boost</div>
+                  <div className="text-2xl font-bold" style={{ color: hasNftBoost ? '#10B981' : '#EF4444' }}>
+                    {hasNftBoost ? '✅ Active' : '❌ Inactive'}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
-          <motion.div layout className="bg-indigo-900 p-4 rounded mb-4 shadow-lg">
-            <h2 className="text-lg font-semibold">💰 Total Wallet Value</h2>
-            <p className="text-xl font-bold">${totalUSD.toFixed(2)} USD</p>
-          </motion.div>
-
-          <motion.div layout className="bg-gray-900 p-4 rounded mb-6 shadow-md">
-            <h2 className="text-lg font-semibold mb-2">📊 Wallet Overview Chart</h2>
-            <TokenBarChart data={tokenBalances} />
-          </motion.div>
+          {/* Token Balances */}
+          {tokenBalances.length > 0 && (
+            <motion.div layout className="p-6 rounded-2xl mb-6" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+              <h2 className="text-xl font-semibold mb-4" style={{ color: '#F1F1F1' }}>Token Balances</h2>
+              <div className="space-y-3">
+                {tokenBalances.map((token) => (
+                  <div
+                    key={token.symbol}
+                    className="flex items-center justify-between p-3 rounded-lg"
+                    style={{ background: 'rgba(10, 10, 10, 0.5)' }}
+                  >
+                    <div className="flex items-center gap-3">
+                      {token.logoURI && (
+                        <img src={token.logoURI} alt={token.symbol} className="w-8 h-8 rounded-full" />
+                      )}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span style={{ color: '#F1F1F1' }}>{token.symbol}</span>
+                          {token.address && <VerifiedBadge tokenAddress={token.address} className="ml-1" />}
+                        </div>
+                        <div className="text-sm" style={{ color: '#A1A1AA' }}>{token.balance}</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div style={{ color: '#F1F1F1' }}>${(token.usdValue || 0).toFixed(2)}</div>
+                      {token.address && !token.isVerified && (
+                        <Link 
+                          href="/factory/verify" 
+                          className="text-xs hover:opacity-80"
+                          style={{ color: '#3B82F6' }}
+                        >
+                          Request verification
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
 
           {/* Discovery Card */}
-          {process.env.NEXT_PUBLIC_ENABLE_DISCOVERY === 'true' && (
-            <motion.div layout className="bg-purple-900/30 backdrop-blur-sm border border-purple-500/30 p-4 rounded-xl mb-6">
+          {process.env.NEXT_PUBLIC_ENABLE_DISCOVERY === 'true' && discoveryTokens.length > 0 && (
+            <motion.div layout className="p-6 rounded-2xl mb-6" style={{ background: 'rgba(138, 43, 226, 0.1)', backdropFilter: 'blur(20px)', border: '1px solid rgba(138, 43, 226, 0.2)' }}>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold">🔍 Token Discovery</h2>
-                <Link href="/discover" className="text-purple-400 hover:text-purple-300 text-sm">
+                <h2 className="text-lg font-semibold" style={{ color: '#F1F1F1' }}>🔍 Token Discovery</h2>
+                <Link href="/discover" className="text-sm hover:opacity-80" style={{ color: '#A78BFA' }}>
                   See all →
                 </Link>
               </div>
               
-              {discoveryTokens.length > 0 ? (
-                <div className="space-y-3">
-                  {discoveryTokens.map((token, index) => (
-                    <TokenRow
-                      key={`${token.address}-${index}`}
-                      address={token.address}
-                      name={token.name}
-                      symbol={token.symbol}
-                      deployer={token.deployer}
-                      createdAt={token.createdAt}
-                      isVerified={token.type === 'verified'}
-                      isNew={token.type === 'new'}
-                      showActions={false}
-                      className="bg-gray-800/50"
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-4">
-                  <p className="text-gray-400 text-sm">Loading discovery data...</p>
-                </div>
-              )}
-            </motion.div>
-          )}
-
-          <motion.div layout className="bg-gray-800 p-4 rounded mt-6">
-            <h2 className="text-lg font-semibold mb-2">🤖 AI Wallet Tip</h2>
-            <p className="text-sm text-gray-300 whitespace-pre-wrap">{aiTip}</p>
-          </motion.div>
-
-          <motion.div layout className="bg-gray-800 p-4 rounded mt-4">
-            <h2 className="text-sm font-semibold mb-1">📜 Previous Tips</h2>
-            <ul className="text-xs text-gray-400 list-disc pl-4">
-              {tipHistory.slice(1, 4).map((tip, idx) => (
-                <li key={idx}>{tip}</li>
-              ))}
-            </ul>
-          </motion.div>
-
-          {tradeLog.length > 0 && (
-            <motion.div layout className="bg-green-900 p-4 rounded mt-4">
-              <h2 className="text-sm font-semibold mb-1">🤖 Bot Trade Ideas</h2>
-              <ul className="text-xs text-green-300 list-disc pl-4">
-                {tradeLog.map((tip, idx) => (
-                  <li key={idx}>{tip}</li>
+              <div className="space-y-3">
+                {discoveryTokens.map((token, index) => (
+                  <TokenRow
+                    key={`${token.address}-${index}`}
+                    address={token.address}
+                    name={token.name}
+                    symbol={token.symbol}
+                    deployer={token.deployer}
+                    createdAt={token.createdAt}
+                    isVerified={token.type === 'verified'}
+                    isNew={token.type === 'new'}
+                    showActions={false}
+                    className="bg-gray-800/50"
+                  />
                 ))}
-              </ul>
+              </div>
             </motion.div>
           )}
 
-          <motion.form layout onSubmit={handleEmailSubmit} className="bg-gray-900 p-4 rounded mt-6">
-            <label className="block text-sm font-medium mb-1">💌 Send AI Tip to Email</label>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <input
-                type="email"
-                placeholder="your@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 px-3 py-2 rounded text-black"
-                required
-              />
-              <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded">
-                Send
-              </button>
-            </div>
-          </motion.form>
-
-          <motion.div layout className="bg-gray-900 p-4 rounded mt-4 text-center">
-            <h2 className="text-sm font-medium mb-2">🛒 Purchase SHAH Token</h2>
-            <button onClick={handlePurchase} className="bg-green-600 text-white px-4 py-2 rounded">
-              Buy SHAH Token
-            </button>
-          </motion.div>
-
-          <motion.div layout className="bg-yellow-800 p-4 rounded mt-4 text-center">
-            <h2 className="text-sm font-medium mb-2">🤖 Enable Auto Trade Bot</h2>
-            <button
-              onClick={() => {
-                setBotActive((prev) => {
-                  const next = !prev
-                  setBotStatus(next ? 'Bot is running...' : 'Bot is off')
-                  return next
-                })
-              }}
-              className="bg-yellow-500 text-black px-4 py-2 rounded"
-            >
-              {botActive ? '🛑 Stop Bot' : '🚀 Start Bot'}
-            </button>
-            <p className="text-xs mt-2 text-gray-200">{botStatus}</p>
-          </motion.div>
-
-          {/* Transaction History Widget */}
-          <motion.div layout className="mt-4">
-            <TxHistory limit={8} />
-          </motion.div>
+          {/* AI Features */}
+          {aiTip && (
+            <motion.div layout className="p-6 rounded-2xl mb-6" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+              <h2 className="text-lg font-semibold mb-3" style={{ color: '#F1F1F1' }}>🤖 AI Wallet Tip</h2>
+              <p className="text-sm whitespace-pre-wrap" style={{ color: '#A1A1AA' }}>{aiTip}</p>
+            </motion.div>
+          )}
 
           {/* Supabase Integration Test */}
           <motion.div layout className="mt-6">
             <SupabaseTest />
           </motion.div>
-        </motion.div>
+        </>
       ) : (
-        <div className="card text-center py-12">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center shadow-2xl" style={{ backgroundColor: 'var(--color-gold)' }}>
-            <span className="text-black font-bold text-2xl">🔗</span>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center p-12 rounded-2xl" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+            <div className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center" style={{ background: 'rgba(212, 175, 55, 0.2)' }}>
+              <Wallet className="w-10 h-10" style={{ color: '#D4AF37' }} />
+            </div>
+            <h2 className="text-2xl font-semibold mb-4" style={{ color: '#F1F1F1' }}>Connect Your Wallet</h2>
+            <p className="mb-8" style={{ color: '#A1A1AA' }}>Connect your wallet to view your portfolio and start trading</p>
+            <ConnectButton />
           </div>
-          <h2 className="text-2xl font-semibold mb-4" style={{ color: 'var(--color-gold)' }}>Connect Your Wallet</h2>
-          <p className="mb-8" style={{ color: 'var(--color-text-secondary)' }}>Connect your wallet to view your portfolio and start trading</p>
-          <button className="btn-gold">
-            Connect Wallet
-          </button>
         </div>
       )}
     </div>
