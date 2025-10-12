@@ -135,12 +135,12 @@ export default function Dashboard() {
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
                         <span className="text-blue-500 text-sm">🔗</span>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">Telegram Linked</p>
-                        <p className="text-xs text-gray-400">Just now</p>
-                      </div>
                     </div>
+                    <div>
+                      <p className="text-sm font-medium">Telegram Linked</p>
+                      <p className="text-xs text-gray-400">Just now</p>
+                    </div>
+                  </div>
                   </div>
                 )}
               </div>
