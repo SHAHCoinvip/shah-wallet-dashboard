@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAccount, useBalance, useContractRead, useWriteContract } from 'wagmi'
+import { useAccount, useBalance, useContractRead, usePublicClient, useWriteContract } from 'wagmi'
 import { parseEther, formatEther } from 'viem'
 import { toast } from 'react-hot-toast'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
@@ -15,24 +15,29 @@ import { erc20Abi } from 'viem'
 export const dynamic = 'force-dynamic'
 
 // Contract Addresses - Updated for DEX V3
-const SHAHSWAP_CONTRACT = process.env.NEXT_PUBLIC_SHAHSWAP_ROUTER || '0x791c34Df045071eB9896DAfA57e3db46CBEBA11b'
-const SHAH_TOKEN_ADDRESS = '0x6E0cFA42F797E316ff147A21f7F1189cd610ede8'
-const WETH_ADDRESS = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
+const SHAHSWAP_CONTRACT = (process.env.NEXT_PUBLIC_SHAHSWAP_ROUTER || '0x791c34Df045071eB9896DAfA57e3db46CBEBA11b') as `0x${string}`
+const SHAH_TOKEN_ADDRESS = (process.env.NEXT_PUBLIC_SHAH || '0x6E0cFA42F797E316ff147A21f7F1189cd610ede8') as `0x${string}`
+const WETH_ADDRESS = (process.env.NEXT_PUBLIC_WETH || '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2') as `0x${string}`
 
 export default function SwapPage() {
   const { address, isConnected } = useAccount()
   const [fromAmount, setFromAmount] = useState('')
   const [toAmount, setToAmount] = useState('')
   const [shahPrice, setShahPrice] = useState<number>(1.72)
+  const [ethPriceUsd, setEthPriceUsd] = useState<number>(2000)
   const [slippage, setSlippage] = useState(0.5)
   const [swapDirection, setSwapDirection] = useState<'SHAH_TO_ETH' | 'ETH_TO_SHAH'>('ETH_TO_SHAH')
   const [isApproved, setIsApproved] = useState(false)
   const [isApproving, setIsApproving] = useState(false)
+  const [isFetchingQuote, setIsFetchingQuote] = useState(false)
+  const [exchangeRate, setExchangeRate] = useState<number | null>(null)
+
+  const publicClient = usePublicClient()
 
   // Get SHAH balance
   const { data: shahBalance } = useBalance({
     address,
-    token: SHAH_TOKEN_ADDRESS as `0x${string}`,
+    token: SHAH_TOKEN_ADDRESS,
   })
 
   // Get ETH balance
@@ -45,18 +50,27 @@ export default function SwapPage() {
     address: SHAH_TOKEN_ADDRESS as `0x${string}`,
     abi: erc20Abi,
     functionName: 'allowance',
-    args: address ? [address, SHAHSWAP_CONTRACT as `0x${string}`] : undefined,
+    args: address ? [address, SHAHSWAP_CONTRACT] : undefined,
   })
 
   // Fetch SHAH price
   useEffect(() => {
     const fetchPrice = async () => {
       try {
-        const price = await getSHAHPrice()
-        setShahPrice(price)
+        const [shahUsd, ethUsd] = await Promise.all([
+          getSHAHPrice(),
+          fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd')
+            .then((res) => res.json())
+            .then((data) => Number(data?.ethereum?.usd || 2000))
+            .catch(() => 2000),
+        ])
+
+        setShahPrice(shahUsd > 0 ? shahUsd : 1.72)
+        setEthPriceUsd(ethUsd > 0 ? ethUsd : 2000)
       } catch (error) {
         console.error('Error fetching SHAH price:', error)
         setShahPrice(1.72)
+        setEthPriceUsd(2000)
       }
     }
 
@@ -77,20 +91,57 @@ export default function SwapPage() {
 
   // Calculate amount out based on current price
   useEffect(() => {
-    if (fromAmount && shahPrice > 0) {
-      if (swapDirection === 'SHAH_TO_ETH') {
-        const shahAmount = parseFloat(fromAmount)
-        const ethAmount = shahAmount * shahPrice
-        setToAmount(ethAmount.toFixed(6))
-      } else {
-        const ethAmount = parseFloat(fromAmount)
-        const shahAmount = ethAmount / shahPrice
-        setToAmount(shahAmount.toFixed(6))
+    let cancelled = false
+
+    const fetchQuote = async () => {
+      if (!publicClient) return
+
+      if (!fromAmount || parseFloat(fromAmount) <= 0) {
+        setToAmount('')
+        setExchangeRate(null)
+        return
       }
-    } else {
-      setToAmount('')
+
+      try {
+        setIsFetchingQuote(true)
+        const amountIn = parseEther(fromAmount)
+        const path =
+          swapDirection === 'ETH_TO_SHAH'
+            ? [WETH_ADDRESS, SHAH_TOKEN_ADDRESS]
+            : [SHAH_TOKEN_ADDRESS, WETH_ADDRESS]
+
+        const amounts = (await publicClient.readContract({
+          address: SHAHSWAP_CONTRACT,
+          abi: ShahSwapABI,
+          functionName: 'getAmountsOut',
+          args: [amountIn, path],
+        })) as bigint[]
+
+        if (cancelled) return
+
+        const amountOut = amounts?.[amounts.length - 1] ?? 0n
+        const formattedOut = formatEther(amountOut)
+        setToAmount(formattedOut)
+
+        const rate = parseFloat(formattedOut) / parseFloat(fromAmount)
+        setExchangeRate(Number.isFinite(rate) ? rate : null)
+      } catch (error) {
+        if (!cancelled) {
+          console.error('Failed to fetch quote:', error)
+          setToAmount('')
+          setExchangeRate(null)
+        }
+      } finally {
+        if (!cancelled) setIsFetchingQuote(false)
+      }
     }
-  }, [fromAmount, shahPrice, swapDirection])
+
+    fetchQuote()
+
+    return () => {
+      cancelled = true
+    }
+  }, [fromAmount, swapDirection, publicClient])
 
   // Approve SHAH token
   const { writeContract: writeApprove } = useWriteContract()
@@ -235,7 +286,13 @@ export default function SwapPage() {
                   </div>
                   
                   <div className="mt-2 text-sm" style={{ color: '#A1A1AA' }}>
-                    ≈ ${fromAmount ? (parseFloat(fromAmount) * (swapDirection === 'ETH_TO_SHAH' ? 2000 : shahPrice)).toFixed(2) : '0.00'}
+                    ≈ $
+                    {fromAmount
+                      ? (
+                          parseFloat(fromAmount) *
+                          (swapDirection === 'ETH_TO_SHAH' ? ethPriceUsd : shahPrice)
+                        ).toFixed(2)
+                      : '0.00'}
                   </div>
                 </div>
               </div>
@@ -291,7 +348,13 @@ export default function SwapPage() {
                   </div>
                   
                   <div className="mt-2 text-sm" style={{ color: '#A1A1AA' }}>
-                    ≈ ${toAmount ? (parseFloat(toAmount) * (swapDirection === 'SHAH_TO_ETH' ? 2000 : shahPrice)).toFixed(2) : '0.00'}
+                    ≈ $
+                    {toAmount
+                      ? (
+                          parseFloat(toAmount) *
+                          (swapDirection === 'SHAH_TO_ETH' ? ethPriceUsd : shahPrice)
+                        ).toFixed(2)
+                      : '0.00'}
                   </div>
                 </div>
               </div>
@@ -304,7 +367,12 @@ export default function SwapPage() {
                     Rate
                   </span>
                   <span className="text-sm" style={{ color: '#F1F1F1' }}>
-                    1 {swapDirection === 'ETH_TO_SHAH' ? 'ETH' : 'SHAH'} = {swapDirection === 'ETH_TO_SHAH' ? (1 / shahPrice).toFixed(2) : (shahPrice * 2000).toFixed(2)} {swapDirection === 'ETH_TO_SHAH' ? 'SHAH' : 'ETH'}
+                    1 {swapDirection === 'ETH_TO_SHAH' ? 'ETH' : 'SHAH'} =
+                    {' '}
+                    {exchangeRate
+                      ? (swapDirection === 'ETH_TO_SHAH' ? exchangeRate : 1 / exchangeRate).toFixed(6)
+                      : '—'}{' '}
+                    {swapDirection === 'ETH_TO_SHAH' ? 'SHAH' : 'ETH'}
                   </span>
                 </div>
                 
