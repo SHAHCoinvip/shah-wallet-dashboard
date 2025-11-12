@@ -53,22 +53,21 @@ const liquidityPools = [
 
 export function PoolsPage() {
   return (
-    <div className="min-h-screen p-8" style={{ background: '#0A0A0A' }}>
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8" style={{ background: '#0A0A0A' }}>
       {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-6 lg:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl mb-2" style={{ color: '#F1F1F1' }}>Liquidity Pools</h1>
-          <p style={{ color: '#A1A1AA' }}>Provide liquidity and earn trading fees</p>
+          <h1 className="text-2xl sm:text-3xl mb-2" style={{ color: '#F1F1F1' }}>Liquidity Pools</h1>
+          <p className="text-sm sm:text-base" style={{ color: '#A1A1AA' }}>Provide liquidity and earn trading fees</p>
         </div>
         
-        <Button style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%)', color: '#0A0A0A' }}>
-          <Plus className="w-5 h-5 mr-2" />
+        <Button className="px-4 sm:px-6 w-full sm:w-auto touch-manipulation" style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%)', color: '#0A0A0A' }}>
           Create Pool
         </Button>
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
         <div className="p-6 rounded-2xl" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(212, 175, 55, 0.2)' }}>
@@ -133,24 +132,24 @@ export function PoolsPage() {
                     boxShadow: '0 0 30px rgba(212, 175, 55, 0.15)',
                   }}
                 >
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
                     <div className="flex items-center gap-4">
                       <div className="flex -space-x-2">
-                        <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: '#D4AF37', border: '2px solid #0A0A0A' }}>
-                          <span className="text-sm text-black">{pool.token1.substring(0, 1)}</span>
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center" style={{ background: '#D4AF37', border: '2px solid #0A0A0A' }}>
+                          <span className="text-xs sm:text-sm text-black">{pool.token1.substring(0, 1)}</span>
                         </div>
-                        <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: '#3B82F6', border: '2px solid #0A0A0A' }}>
-                          <span className="text-sm text-white">{pool.token2.substring(0, 1)}</span>
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center" style={{ background: '#3B82F6', border: '2px solid #0A0A0A' }}>
+                          <span className="text-xs sm:text-sm text-white">{pool.token2.substring(0, 1)}</span>
                         </div>
                       </div>
                       
                       <div>
-                        <h3 className="text-lg mb-1" style={{ color: '#F1F1F1' }}>{pool.pair}</h3>
+                        <h3 className="text-base sm:text-lg mb-1" style={{ color: '#F1F1F1' }}>{pool.pair}</h3>
                         <div className="flex gap-2">
-                          <Badge style={{ background: 'rgba(212, 175, 55, 0.2)', color: '#D4AF37', border: '1px solid rgba(212, 175, 55, 0.3)' }}>
+                          <Badge className="text-xs" style={{ background: 'rgba(212, 175, 55, 0.2)', color: '#D4AF37', border: '1px solid rgba(212, 175, 55, 0.3)' }}>
                             Active
                           </Badge>
-                          <Badge style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#10B981', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                          <Badge className="text-xs" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#10B981', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
                             {pool.apr} APR
                           </Badge>
                         </div>
@@ -158,16 +157,16 @@ export function PoolsPage() {
                     </div>
 
                     <div className="flex gap-2">
-                      <Button variant="outline" style={{ borderColor: 'rgba(212, 175, 55, 0.3)', color: '#D4AF37' }}>
+                      <Button variant="outline" className="flex-1 lg:flex-initial text-sm touch-manipulation" style={{ borderColor: 'rgba(212, 175, 55, 0.3)', color: '#D4AF37' }}>
                         Remove
                       </Button>
-                      <Button style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%)', color: '#0A0A0A' }}>
+                      <Button className="flex-1 lg:flex-initial text-sm touch-manipulation" style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%)', color: '#0A0A0A' }}>
                         Add Liquidity
                       </Button>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-5 gap-6">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-6">
                     <div>
                       <div className="text-xs mb-1" style={{ color: '#A1A1AA' }}>Your Liquidity</div>
                       <div style={{ color: '#F1F1F1' }}>{pool.yourLiquidity}</div>

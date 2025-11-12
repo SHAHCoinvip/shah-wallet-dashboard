@@ -37,15 +37,15 @@ const stakingTiers = [
 
 export function StakingPage() {
   return (
-    <div className="min-h-screen p-8" style={{ background: '#0A0A0A' }}>
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8" style={{ background: '#0A0A0A' }}>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl mb-2" style={{ color: '#F1F1F1' }}>Staking & Farming</h1>
-        <p style={{ color: '#A1A1AA' }}>Earn rewards by staking your SHAH tokens</p>
+      <div className="mb-6 lg:mb-8">
+        <h1 className="text-2xl sm:text-3xl mb-2" style={{ color: '#F1F1F1' }}>Staking & Farming</h1>
+        <p className="text-sm sm:text-base" style={{ color: '#A1A1AA' }}>Earn rewards by staking your SHAH tokens</p>
       </div>
 
       {/* Overview Cards */}
-      <div className="grid grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
         <div className="p-6 rounded-2xl" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(212, 175, 55, 0.2)' }}>
@@ -92,14 +92,14 @@ export function StakingPage() {
       </div>
 
       {/* Staking Tiers */}
-      <div className="mb-8">
-        <h2 className="text-xl mb-4" style={{ color: '#F1F1F1' }}>Staking Tiers</h2>
+      <div className="mb-6 lg:mb-8">
+        <h2 className="text-lg sm:text-xl mb-4" style={{ color: '#F1F1F1' }}>Staking Tiers</h2>
         
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
           {stakingTiers.map((tier, index) => (
             <div
               key={index}
-              className="p-6 rounded-2xl relative overflow-hidden transition-all hover:scale-105"
+              className="p-5 sm:p-6 rounded-2xl relative overflow-hidden transition-all hover:scale-105"
               style={{
                 background: 'rgba(17, 17, 17, 0.6)',
                 backdropFilter: 'blur(20px)',
@@ -108,33 +108,33 @@ export function StakingPage() {
               }}
             >
               {tier.isActive && (
-                <div className="absolute top-4 right-4">
-                  <Badge style={{ background: 'rgba(212, 175, 55, 0.2)', color: '#D4AF37', border: '1px solid rgba(212, 175, 55, 0.3)' }}>
+                <div className="absolute top-3 right-3 sm:top-4 sm:right-4">
+                  <Badge className="text-xs" style={{ background: 'rgba(212, 175, 55, 0.2)', color: '#D4AF37', border: '1px solid rgba(212, 175, 55, 0.3)' }}>
                     Active
                   </Badge>
                 </div>
               )}
               
-              <div className="text-4xl mb-4">{tier.icon}</div>
+              <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">{tier.icon}</div>
               
-              <h3 className="text-xl mb-2" style={{ color: tier.color }}>{tier.name}</h3>
+              <h3 className="text-lg sm:text-xl mb-2" style={{ color: tier.color }}>{tier.name}</h3>
               
-              <div className="space-y-3 mb-6">
+              <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm" style={{ color: '#A1A1AA' }}>Min. Stake</span>
-                  <span className="text-sm" style={{ color: '#F1F1F1' }}>{tier.minStake}</span>
+                  <span className="text-xs sm:text-sm" style={{ color: '#A1A1AA' }}>Min. Stake</span>
+                  <span className="text-xs sm:text-sm" style={{ color: '#F1F1F1' }}>{tier.minStake}</span>
                 </div>
                 
                 <div className="flex justify-between items-center">
-                  <span className="text-sm" style={{ color: '#A1A1AA' }}>APY</span>
-                  <span className="text-lg" style={{ color: '#10B981' }}>{tier.apy}</span>
+                  <span className="text-xs sm:text-sm" style={{ color: '#A1A1AA' }}>APY</span>
+                  <span className="text-base sm:text-lg" style={{ color: '#10B981' }}>{tier.apy}</span>
                 </div>
                 
                 {tier.isActive && (
                   <div>
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm" style={{ color: '#A1A1AA' }}>Your Stake</span>
-                      <span className="text-sm" style={{ color: '#F1F1F1' }}>{tier.staked} SHAH</span>
+                      <span className="text-xs sm:text-sm" style={{ color: '#A1A1AA' }}>Your Stake</span>
+                      <span className="text-xs sm:text-sm" style={{ color: '#F1F1F1' }}>{tier.staked} SHAH</span>
                     </div>
                     <Progress value={75} className="h-2" />
                   </div>
@@ -143,15 +143,15 @@ export function StakingPage() {
               
               {tier.isActive ? (
                 <div className="grid grid-cols-2 gap-2">
-                  <Button variant="outline" className="w-full" style={{ borderColor: tier.color, color: tier.color }}>
+                  <Button variant="outline" className="w-full text-sm touch-manipulation" style={{ borderColor: tier.color, color: tier.color }}>
                     Unstake
                   </Button>
-                  <Button className="w-full" style={{ background: `linear-gradient(135deg, ${tier.color} 0%, ${tier.color}dd 100%)`, color: '#0A0A0A' }}>
+                  <Button className="w-full text-sm touch-manipulation" style={{ background: `linear-gradient(135deg, ${tier.color} 0%, ${tier.color}dd 100%)`, color: '#0A0A0A' }}>
                     Add More
                   </Button>
                 </div>
               ) : (
-                <Button className="w-full" style={{ background: '#111111', color: '#F1F1F1', border: '1px solid rgba(212, 175, 55, 0.2)' }}>
+                <Button className="w-full text-sm touch-manipulation" style={{ background: '#111111', color: '#F1F1F1', border: '1px solid rgba(212, 175, 55, 0.2)' }}>
                   Stake Now
                 </Button>
               )}
@@ -162,9 +162,9 @@ export function StakingPage() {
 
       {/* Active Pools */}
       <div>
-        <h2 className="text-xl mb-4" style={{ color: '#F1F1F1' }}>Active Farming Pools</h2>
+        <h2 className="text-lg sm:text-xl mb-4" style={{ color: '#F1F1F1' }}>Active Farming Pools</h2>
         
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
           {/* SHAH-ETH Pool */}
           <div className="p-6 rounded-2xl" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
             <div className="flex items-center justify-between mb-4">

@@ -23,75 +23,77 @@ const recentActivity = [
 
 export function DashboardPage() {
   return (
-    <div className="min-h-screen p-8" style={{ background: '#0A0A0A' }}>
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8" style={{ background: '#0A0A0A' }}>
       {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl mb-2" style={{ color: '#F1F1F1' }}>Dashboard</h1>
-          <p style={{ color: '#A1A1AA' }}>Welcome back to your SHAH Wallet</p>
+      <div className="mb-6 lg:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl mb-2" style={{ color: '#F1F1F1' }}>Dashboard</h1>
+            <p className="text-sm sm:text-base" style={{ color: '#A1A1AA' }}>Welcome back to your SHAH Wallet</p>
+          </div>
         </div>
         
-        <div className="flex items-center gap-4">
-          <Badge className="px-4 py-2" style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#3B82F6', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <Badge className="px-3 py-1.5 text-xs sm:text-sm" style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#3B82F6', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
             Ethereum Mainnet
           </Badge>
           
-          <div className="flex items-center gap-2 px-4 py-2 rounded-lg" style={{ background: '#111111', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ background: '#111111', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
             <Wallet className="w-4 h-4" style={{ color: '#D4AF37' }} />
-            <span className="text-sm" style={{ color: '#F1F1F1' }}>0x7a25...4f9c</span>
+            <span className="text-xs sm:text-sm" style={{ color: '#F1F1F1' }}>0x7a25...4f9c</span>
             <button className="hover:opacity-70 transition-opacity">
-              <Copy className="w-4 h-4" style={{ color: '#A1A1AA' }} />
+              <Copy className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: '#A1A1AA' }} />
             </button>
           </div>
           
-          <Button className="px-6" style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%)', color: '#0A0A0A' }}>
+          <Button className="px-4 py-2 text-sm sm:text-base ml-auto" style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%)', color: '#0A0A0A' }}>
             Connect Wallet
           </Button>
         </div>
       </div>
 
       {/* Balance Cards */}
-      <div className="grid grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
         {/* ETH Balance */}
-        <div className="p-6 rounded-2xl relative overflow-hidden" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full" style={{ background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)' }} />
+        <div className="p-5 sm:p-6 rounded-2xl relative overflow-hidden" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+          <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 rounded-full" style={{ background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)' }} />
           <div className="relative">
-            <div className="text-sm mb-2" style={{ color: '#A1A1AA' }}>ETH Balance</div>
-            <div className="text-3xl mb-1" style={{ color: '#F1F1F1' }}>2.458</div>
+            <div className="text-xs sm:text-sm mb-2" style={{ color: '#A1A1AA' }}>ETH Balance</div>
+            <div className="text-2xl sm:text-3xl mb-1" style={{ color: '#F1F1F1' }}>2.458</div>
             <div className="text-sm flex items-center gap-1" style={{ color: '#3B82F6' }}>
-              <TrendingUp className="w-4 h-4" />
+              <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
               <span>$4,852.34</span>
             </div>
           </div>
         </div>
 
         {/* SHAH Token */}
-        <div className="p-6 rounded-2xl relative overflow-hidden" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(59, 130, 246, 0.2)', boxShadow: '0 0 20px rgba(59, 130, 246, 0.15)' }}>
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full" style={{ background: 'radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%)' }} />
-          <div className="absolute top-4 right-4 w-12 h-12 opacity-20">
+        <div className="p-5 sm:p-6 rounded-2xl relative overflow-hidden" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(59, 130, 246, 0.2)', boxShadow: '0 0 20px rgba(59, 130, 246, 0.15)' }}>
+          <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 rounded-full" style={{ background: 'radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%)' }} />
+          <div className="absolute top-3 right-3 sm:top-4 sm:right-4 w-10 h-10 sm:w-12 sm:h-12 opacity-20">
             <img src={shahBlueLogo} alt="SHAH" className="w-full h-full object-contain" />
           </div>
           <div className="relative">
-            <div className="text-sm mb-2 flex items-center gap-2" style={{ color: '#A1A1AA' }}>
-              <img src={shahBlueLogo} alt="SHAH" className="w-5 h-5 object-contain" />
+            <div className="text-xs sm:text-sm mb-2 flex items-center gap-2" style={{ color: '#A1A1AA' }}>
+              <img src={shahBlueLogo} alt="SHAH" className="w-4 h-4 sm:w-5 sm:h-5 object-contain" />
               SHAH Token
             </div>
-            <div className="text-3xl mb-1" style={{ color: '#3B82F6' }}>12,450</div>
+            <div className="text-2xl sm:text-3xl mb-1" style={{ color: '#3B82F6' }}>12,450</div>
             <div className="text-sm flex items-center gap-1" style={{ color: '#10B981' }}>
-              <ArrowUpRight className="w-4 h-4" />
+              <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4" />
               <span>+12.5%</span>
             </div>
           </div>
         </div>
 
         {/* Total Portfolio */}
-        <div className="p-6 rounded-2xl relative overflow-hidden" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full" style={{ background: 'radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%)' }} />
+        <div className="p-5 sm:p-6 rounded-2xl relative overflow-hidden sm:col-span-2 lg:col-span-1" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+          <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 rounded-full" style={{ background: 'radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%)' }} />
           <div className="relative">
-            <div className="text-sm mb-2" style={{ color: '#A1A1AA' }}>Total Portfolio</div>
-            <div className="text-3xl mb-1" style={{ color: '#F1F1F1' }}>$49,322</div>
+            <div className="text-xs sm:text-sm mb-2" style={{ color: '#A1A1AA' }}>Total Portfolio</div>
+            <div className="text-2xl sm:text-3xl mb-1" style={{ color: '#F1F1F1' }}>$49,322</div>
             <div className="text-sm flex items-center gap-1" style={{ color: '#10B981' }}>
-              <ArrowUpRight className="w-4 h-4" />
+              <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4" />
               <span>+8.2% (24h)</span>
             </div>
           </div>
@@ -99,41 +101,39 @@ export function DashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
-        <Button className="h-14" style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%)', color: '#0A0A0A' }}>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6 lg:mb-8">
+        <Button className="h-12 sm:h-14 text-sm sm:text-base touch-manipulation" style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%)', color: '#0A0A0A' }}>
           Swap
         </Button>
-        <Button className="h-14" style={{ background: '#111111', color: '#F1F1F1', border: '1px solid rgba(212, 175, 55, 0.2)' }}>
+        <Button className="h-12 sm:h-14 text-sm sm:text-base touch-manipulation" style={{ background: '#111111', color: '#F1F1F1', border: '1px solid rgba(212, 175, 55, 0.2)' }}>
           Stake
         </Button>
-        <Button className="h-14" style={{ background: '#111111', color: '#F1F1F1', border: '1px solid rgba(212, 175, 55, 0.2)' }}>
+        <Button className="h-12 sm:h-14 text-sm sm:text-base touch-manipulation" style={{ background: '#111111', color: '#F1F1F1', border: '1px solid rgba(212, 175, 55, 0.2)' }}>
           Farm
         </Button>
-        <Button className="h-14" style={{ background: '#111111', color: '#F1F1F1', border: '1px solid rgba(212, 175, 55, 0.2)' }}>
+        <Button className="h-12 sm:h-14 text-sm sm:text-base touch-manipulation" style={{ background: '#111111', color: '#F1F1F1', border: '1px solid rgba(212, 175, 55, 0.2)' }}>
           Buy Crypto
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
         {/* Chart Widget */}
-        <div className="p-6 rounded-2xl" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
-          <div className="flex items-center justify-between mb-6">
+        <div className="p-5 sm:p-6 rounded-2xl" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
             <div>
-              <h3 className="text-lg mb-1" style={{ color: '#F1F1F1' }}>SHAH Price</h3>
-              <div className="text-2xl" style={{ color: '#D4AF37' }}>$3.64</div>
+              <h3 className="text-base sm:text-lg mb-1" style={{ color: '#F1F1F1' }}>SHAH Price</h3>
+              <div className="text-xl sm:text-2xl" style={{ color: '#D4AF37' }}>$3.64</div>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#10B981', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
-                +18.2%
-              </Badge>
-            </div>
+            <Badge className="self-start sm:self-auto" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#10B981', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+              +18.2%
+            </Badge>
           </div>
           
-          <ResponsiveContainer width="100%" height={200}>
+          <ResponsiveContainer width="100%" height={180}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(212, 175, 55, 0.1)" />
-              <XAxis dataKey="time" stroke="#A1A1AA" style={{ fontSize: '12px' }} />
-              <YAxis stroke="#A1A1AA" style={{ fontSize: '12px' }} />
+              <XAxis dataKey="time" stroke="#A1A1AA" style={{ fontSize: '11px' }} />
+              <YAxis stroke="#A1A1AA" style={{ fontSize: '11px' }} />
               <Tooltip
                 contentStyle={{
                   background: '#111111',
@@ -148,28 +148,28 @@ export function DashboardPage() {
         </div>
 
         {/* Recent Activity */}
-        <div className="p-6 rounded-2xl" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
-          <h3 className="text-lg mb-4" style={{ color: '#F1F1F1' }}>Recent Activity</h3>
+        <div className="p-5 sm:p-6 rounded-2xl" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
+          <h3 className="text-base sm:text-lg mb-4" style={{ color: '#F1F1F1' }}>Recent Activity</h3>
           
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {recentActivity.map((activity, index) => (
-              <div key={index} className="flex items-center justify-between p-3 rounded-lg hover:bg-opacity-50 transition-all" style={{ background: 'rgba(17, 17, 17, 0.5)' }}>
-                <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full ${activity.status === 'success' ? 'bg-green-500' : 'bg-yellow-500'}`} />
-                  <div>
-                    <div className="text-sm" style={{ color: '#F1F1F1' }}>{activity.type}</div>
-                    <div className="text-xs" style={{ color: '#A1A1AA' }}>{activity.from}</div>
+              <div key={index} className="flex items-center justify-between p-2.5 sm:p-3 rounded-lg hover:bg-opacity-50 transition-all" style={{ background: 'rgba(17, 17, 17, 0.5)' }}>
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${activity.status === 'success' ? 'bg-green-500' : 'bg-yellow-500'}`} />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs sm:text-sm truncate" style={{ color: '#F1F1F1' }}>{activity.type}</div>
+                    <div className="text-xs truncate" style={{ color: '#A1A1AA' }}>{activity.from}</div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-sm" style={{ color: '#F1F1F1' }}>{activity.amount}</div>
+                <div className="text-right ml-2 flex-shrink-0">
+                  <div className="text-xs sm:text-sm" style={{ color: '#F1F1F1' }}>{activity.amount}</div>
                   <div className="text-xs" style={{ color: '#A1A1AA' }}>{activity.time}</div>
                 </div>
               </div>
             ))}
           </div>
           
-          <button className="w-full mt-4 py-2 text-sm rounded-lg transition-all hover:opacity-80" style={{ color: '#D4AF37', border: '1px solid rgba(212, 175, 55, 0.2)' }}>
+          <button className="w-full mt-4 py-2 text-xs sm:text-sm rounded-lg transition-all hover:opacity-80 touch-manipulation" style={{ color: '#D4AF37', border: '1px solid rgba(212, 175, 55, 0.2)' }}>
             View All Transactions
           </button>
         </div>
