@@ -8,10 +8,15 @@ import { Rocket, Clock, CheckCircle } from 'lucide-react'
 import { getDropsByStatus, getLaunchpadStats, LaunchpadDrop, LaunchpadStats } from '@/lib/launchpad'
 import DropCard from '@/components/DropCard'
 
-// Force dynamic rendering
 export const dynamic = 'force-dynamic'
 
 type TabType = 'upcoming' | 'live' | 'archived'
+
+const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
+  { id: 'live', label: 'Live', icon: <CheckCircle className="w-4 h-4" /> },
+  { id: 'upcoming', label: 'Upcoming', icon: <Clock className="w-4 h-4" /> },
+  { id: 'archived', label: 'Archived', icon: <Rocket className="w-4 h-4" /> },
+]
 
 export default function LaunchpadPage() {
   const { isConnected } = useAccount()
@@ -20,7 +25,6 @@ export default function LaunchpadPage() {
   const [stats, setStats] = useState<LaunchpadStats | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // Load drops and stats
   useEffect(() => {
     loadData()
   }, [activeTab])
@@ -28,12 +32,10 @@ export default function LaunchpadPage() {
   const loadData = async () => {
     try {
       setLoading(true)
-      
       const [dropsData, statsData] = await Promise.all([
         getDropsByStatus(activeTab === 'archived' ? 'ended' : activeTab),
-        getLaunchpadStats()
+        getLaunchpadStats(),
       ])
-      
       setDrops(dropsData)
       setStats(statsData)
     } catch (error) {
@@ -43,174 +45,169 @@ export default function LaunchpadPage() {
     }
   }
 
-  const featuredDrop = drops.find(d => d.status === 'live') || drops[0]
+  const featuredDrop = drops.find((drop) => drop.status === 'live') || drops[0]
 
   return (
-    <div className="min-h-screen p-8" style={{ background: '#0A0A0A' }}>
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl mb-2" style={{ color: '#F1F1F1' }}>NFT Launchpad</h1>
-        <p style={{ color: '#A1A1AA' }}>Discover and mint exclusive NFT collections</p>
+    <>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">NFT Launchpad</h1>
+          <p className="page-subtitle">Discover artist-led drops and curated collections</p>
+        </div>
+        <div className="hidden md:block">
+          <ConnectButton chainStatus="icon" showBalance={false} accountStatus="address" />
+        </div>
       </div>
 
       {!isConnected ? (
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center p-12 rounded-2xl" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
-            <div className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center" style={{ background: 'rgba(212, 175, 55, 0.2)' }}>
-              <Rocket className="w-10 h-10" style={{ color: '#D4AF37' }} />
-            </div>
-            <h2 className="text-2xl font-semibold mb-4" style={{ color: '#F1F1F1' }}>Connect Your Wallet</h2>
-            <p className="mb-8" style={{ color: '#A1A1AA' }}>Connect your wallet to mint NFTs</p>
-            <ConnectButton />
+        <section className="card card-glass text-center py-12">
+          <div className="w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(212, 175, 55, 0.18)', border: '1px solid rgba(212, 175, 55, 0.3)' }}>
+            <Rocket className="w-8 h-8" color="var(--gold)" />
           </div>
-        </div>
+          <h2 className="text-2xl font-semibold mb-3">Connect Your Wallet</h2>
+          <p className="page-subtitle" style={{ marginBottom: '1.75rem' }}>
+            Connect your wallet to mint featured SHAH launchpad collections
+          </p>
+          <ConnectButton />
+        </section>
       ) : (
-        <>
-          {/* Featured Hero */}
+        <div className="space-y-8">
           {featuredDrop && (
-            <div className="mb-8 p-8 rounded-2xl relative overflow-hidden" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.2)', boxShadow: '0 0 40px rgba(212, 175, 55, 0.15)' }}>
-              <div className="absolute top-0 right-0 w-96 h-96 rounded-full" style={{ background: 'radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%)' }} />
-              
-              <div className="grid grid-cols-2 gap-8 relative z-10">
-                <div className="flex flex-col justify-center">
-                  <div className="px-3 py-1 rounded-full text-xs mb-4 w-fit" style={{ background: 'rgba(212, 175, 55, 0.2)', color: '#D4AF37', border: '1px solid rgba(212, 175, 55, 0.3)' }}>
+            <section className="card card-glass overflow-hidden">
+              <div className="grid gap-8 md:grid-cols-2">
+                <div className="flex flex-col justify-center gap-6">
+                  <div className="badge" style={{ background: 'rgba(212, 175, 55, 0.18)', color: 'var(--gold)', border: '1px solid rgba(212, 175, 55, 0.25)' }}>
                     Featured Collection
                   </div>
-                  
-                  <h2 className="text-4xl mb-4" style={{ color: '#D4AF37' }}>{featuredDrop.name}</h2>
-                  
-                  <p className="mb-6" style={{ color: '#A1A1AA' }}>
-                    {featuredDrop.description || 'Exclusive NFT collection with special benefits and rewards.'}
-                  </p>
-                  
-                  <div className="grid grid-cols-3 gap-4 mb-6">
-                    <div>
-                      <div className="text-sm mb-1" style={{ color: '#A1A1AA' }}>Total Supply</div>
-                      <div className="text-xl" style={{ color: '#F1F1F1' }}>{featuredDrop.totalSupply || 'N/A'}</div>
+                  <div>
+                    <h2 className="text-3xl font-semibold" style={{ color: 'var(--gold)' }}>
+                      {featuredDrop.name}
+                    </h2>
+                    <p className="mt-3 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                      {featuredDrop.description || 'Exclusive NFT collection with premium utilities for early adopters.'}
+                    </p>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    <div className="rounded-xl border border-[rgba(255,255,255,0.08)] bg-[#111111] p-4">
+                      <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Total Supply</p>
+                      <p className="mt-1 text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
+                        {featuredDrop.totalSupply || 'TBA'}
+                      </p>
                     </div>
-                    <div>
-                      <div className="text-sm mb-1" style={{ color: '#A1A1AA' }}>Minted</div>
-                      <div className="text-xl" style={{ color: '#F1F1F1' }}>{featuredDrop.mintedCount || '0'}</div>
+                    <div className="rounded-xl border border-[rgba(255,255,255,0.08)] bg-[#111111] p-4">
+                      <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Minted</p>
+                      <p className="mt-1 text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
+                        {featuredDrop.mintedCount || 0}
+                      </p>
                     </div>
-                    <div>
-                      <div className="text-sm mb-1" style={{ color: '#A1A1AA' }}>Price</div>
-                      <div className="text-xl" style={{ color: '#D4AF37' }}>{featuredDrop.priceUSD ? `$${featuredDrop.priceUSD}` : 'TBA'}</div>
+                    <div className="rounded-xl border border-[rgba(212,175,55,0.3)] bg-[rgba(212,175,55,0.14)] p-4">
+                      <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Mint Price</p>
+                      <p className="mt-1 text-lg font-semibold" style={{ color: 'var(--gold)' }}>
+                        {featuredDrop.priceUSD ? `$${featuredDrop.priceUSD}` : 'TBA'}
+                      </p>
                     </div>
                   </div>
-                  
-                  <button className="w-fit px-8 h-12 rounded-lg font-medium transition-all hover:opacity-90" style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%)', color: '#0A0A0A' }}>
-                    Mint Now
-                  </button>
+                  <div className="flex flex-wrap gap-3">
+                    <button className="btn-gold">Mint Now</button>
+                    <button className="btn-outline">View Drop Details</button>
+                  </div>
                 </div>
-                
                 <div className="flex items-center justify-center">
                   {featuredDrop.imageUrl ? (
-                    <div className="w-80 h-80 rounded-2xl overflow-hidden" style={{ border: '2px solid rgba(212, 175, 55, 0.3)', boxShadow: '0 0 30px rgba(212, 175, 55, 0.2)' }}>
-                      <img 
-                        src={featuredDrop.imageUrl}
-                        alt={featuredDrop.name}
-                        className="w-full h-full object-cover"
-                      />
+                    <div className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-[rgba(212,175,55,0.25)]">
+                      <img src={featuredDrop.imageUrl} alt={featuredDrop.name} className="h-full w-full object-cover" />
                     </div>
                   ) : (
-                    <div className="w-80 h-80 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(212, 175, 55, 0.1)', border: '2px solid rgba(212, 175, 55, 0.3)' }}>
-                      <Rocket className="w-24 h-24" style={{ color: '#D4AF37' }} />
+                    <div className="flex h-72 w-72 items-center justify-center rounded-2xl border border-[rgba(212,175,55,0.25)]" style={{ background: 'rgba(212, 175, 55, 0.12)' }}>
+                      <Rocket className="h-16 w-16" color="var(--gold)" />
                     </div>
                   )}
                 </div>
               </div>
-            </div>
+            </section>
           )}
 
-          {/* Tabs */}
-          <div className="mb-6">
-            <div className="flex gap-2 p-1 rounded-lg w-fit" style={{ background: '#111111', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
-              <button
-                onClick={() => setActiveTab('live')}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all"
-                style={{
-                  background: activeTab === 'live' ? 'rgba(212, 175, 55, 0.2)' : 'transparent',
-                  color: activeTab === 'live' ? '#D4AF37' : '#A1A1AA'
-                }}
-              >
-                <CheckCircle className="w-4 h-4" />
-                Live
-              </button>
-              <button
-                onClick={() => setActiveTab('upcoming')}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all"
-                style={{
-                  background: activeTab === 'upcoming' ? 'rgba(212, 175, 55, 0.2)' : 'transparent',
-                  color: activeTab === 'upcoming' ? '#D4AF37' : '#A1A1AA'
-                }}
-              >
-                <Clock className="w-4 h-4" />
-                Upcoming
-              </button>
-              <button
-                onClick={() => setActiveTab('archived')}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all"
-                style={{
-                  background: activeTab === 'archived' ? 'rgba(212, 175, 55, 0.2)' : 'transparent',
-                  color: activeTab === 'archived' ? '#D4AF37' : '#A1A1AA'
-                }}
-              >
-                <Rocket className="w-4 h-4" />
-                Archived
-              </button>
-            </div>
-          </div>
+          <section>
+            <div className="mb-4 flex flex-wrap items-center gap-3 justify-between">
+              <div className="flex gap-2 rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.04)] p-1">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition"
+                    style={{
+                      background: activeTab === tab.id ? 'rgba(212, 175, 55, 0.15)' : 'transparent',
+                      color: activeTab === tab.id ? 'var(--gold)' : 'var(--text-secondary)',
+                    }}
+                  >
+                    {tab.icon}
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
 
-          {/* Content */}
-          {loading ? (
-            <div className="grid grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="rounded-2xl overflow-hidden animate-pulse" style={{ background: 'rgba(17, 17, 17, 0.6)' }}>
-                  <div className="h-64" style={{ background: 'rgba(10, 10, 10, 0.5)' }}></div>
-                  <div className="p-5 space-y-3">
-                    <div className="h-6 rounded" style={{ background: 'rgba(10, 10, 10, 0.5)', width: '75%' }}></div>
-                    <div className="h-4 rounded" style={{ background: 'rgba(10, 10, 10, 0.5)', width: '50%' }}></div>
-                    <div className="h-4 rounded" style={{ background: 'rgba(10, 10, 10, 0.5)' }}></div>
-                    <div className="h-10 rounded" style={{ background: 'rgba(10, 10, 10, 0.5)' }}></div>
+              {stats && (
+                <div className="flex flex-wrap gap-3 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                  <span className="badge" style={{ background: 'rgba(255,255,255,0.08)' }}>
+                    Total Raised: ${stats.totalRaisedUSD?.toLocaleString() ?? '0'}
+                  </span>
+                  <span className="badge" style={{ background: 'rgba(255,255,255,0.08)' }}>
+                    Participants: {stats.totalParticipants?.toLocaleString() ?? '0'}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {loading ? (
+              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {[...Array(6)].map((_, idx) => (
+                  <div key={idx} className="card card-glass animate-pulse space-y-4">
+                    <div className="h-48 rounded-xl bg-[rgba(255,255,255,0.04)]" />
+                    <div className="space-y-3">
+                      <div className="h-4 rounded bg-[rgba(255,255,255,0.06)]" />
+                      <div className="h-4 w-1/2 rounded bg-[rgba(255,255,255,0.06)]" />
+                      <div className="h-10 rounded bg-[rgba(255,255,255,0.06)]" />
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : drops.length === 0 ? (
-            <div className="text-center py-16">
-              <Rocket className="w-16 h-16 mx-auto mb-4 opacity-50" style={{ color: '#A1A1AA' }} />
-              <h3 className="text-xl mb-2" style={{ color: '#F1F1F1' }}>
-                {activeTab === 'live' ? 'No Live Drops' : activeTab === 'upcoming' ? 'No Upcoming Drops' : 'No Archived Collections'}
-              </h3>
-              <p style={{ color: '#A1A1AA' }}>
-                {activeTab === 'live' ? 'All current drops have ended' : activeTab === 'upcoming' ? 'New drops are being prepared' : 'Past drops will appear here'}
-              </p>
-            </div>
-          ) : (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="grid grid-cols-3 gap-6"
-            >
-              {drops.map((drop) => (
-                <DropCard key={drop.id} drop={drop} />
-              ))}
-            </motion.div>
-          )}
+                ))}
+              </div>
+            ) : drops.length === 0 ? (
+              <section className="card card-glass text-center py-16">
+                <Rocket className="mx-auto mb-4 h-14 w-14" color="var(--text-secondary)" />
+                <h3 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>
+                  {activeTab === 'live' ? 'No Live Drops' : activeTab === 'upcoming' ? 'No Upcoming Drops' : 'No Archived Collections'}
+                </h3>
+                <p className="mt-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                  {activeTab === 'live'
+                    ? 'All drops have concluded. Check back for the next launch.'
+                    : activeTab === 'upcoming'
+                    ? 'Our curators are preparing the next generation of drops.'
+                    : 'Completed launches will appear here for archival reference.'}
+                </p>
+              </section>
+            ) : (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {drops.map((drop) => (
+                  <DropCard key={drop.id} drop={drop} />
+                ))}
+              </motion.div>
+            )}
+          </section>
 
-          {/* Partner Logos */}
-          <div className="mt-12 p-8 rounded-2xl" style={{ background: 'rgba(17, 17, 17, 0.6)', backdropFilter: 'blur(20px)', border: '1px solid rgba(212, 175, 55, 0.1)' }}>
-            <h3 className="text-center mb-6" style={{ color: '#A1A1AA' }}>Trusted Partners</h3>
-            <div className="flex items-center justify-center gap-12">
-              {['OpenSea', 'Rarible', 'SuperRare', 'Foundation', 'Nifty'].map((partner, index) => (
-                <div key={index} className="text-xl opacity-50 hover:opacity-100 transition-opacity" style={{ color: '#F1F1F1' }}>
+          <section className="card card-glass">
+            <h3 className="text-center text-sm uppercase tracking-[3px]" style={{ color: 'var(--text-secondary)' }}>
+              Trusted Partners
+            </h3>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-8 text-sm" style={{ color: 'var(--text-secondary)' }}>
+              {['OpenSea', 'Rarible', 'SuperRare', 'Foundation', 'Nifty Gateway'].map((partner) => (
+                <span key={partner} className="opacity-60 transition hover:opacity-100">
                   {partner}
-                </div>
+                </span>
               ))}
             </div>
-          </div>
-        </>
+          </section>
+        </div>
       )}
-    </div>
+    </>
   )
 }

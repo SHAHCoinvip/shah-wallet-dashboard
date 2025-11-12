@@ -20,7 +20,7 @@ const walletConnectProjectId =
   process.env.WALLETCONNECT_PROJECT_ID ||
   'c3a53d6cc4381d7bde9cd287d5dc1773'
 
-const config = getDefaultConfig({
+export const wagmiConfig = getDefaultConfig({
   appName: 'SHAH Wallet',
   projectId: walletConnectProjectId,
   chains: [mainnet, polygon, bsc, arbitrum],
@@ -42,7 +42,7 @@ const queryClient = new QueryClient()
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <WagmiConfig config={config}>
+      <WagmiConfig config={wagmiConfig}>
         <RainbowKitProvider>
           {children}
         </RainbowKitProvider>

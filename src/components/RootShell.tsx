@@ -2,9 +2,23 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Compass, Factory, Layers, Sprout, Rocket, Droplets, ArrowLeftRight, Settings, Network, Smartphone } from 'lucide-react'
 import Image from 'next/image'
-import Providers from '@/app/providers'
+import { useAccount, useBalance } from 'wagmi'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
+import {
+  Home,
+  Compass,
+  Factory,
+  Layers,
+  Sprout,
+  Rocket,
+  Droplets,
+  ArrowLeftRight,
+  Settings,
+  Network,
+  Smartphone,
+} from 'lucide-react'
+import Providers, { wagmiConfig } from '@/app/providers'
 import { Toaster } from 'react-hot-toast'
 import NotifBell from '@/components/NotifBell'
 
@@ -22,74 +36,92 @@ const navItems = [
   { name: 'Settings', href: '/settings/alerts', icon: Settings },
 ]
 
-export default function RootShell({ children }: { children: React.ReactNode }) {
+const truncateAddress = (address?: string) => {
+  if (!address) return ''
+  return `${address.slice(0, 6)}…${address.slice(-4)}`
+}
+
+function ShellContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const { address, isConnected, chainId } = useAccount()
+  const { data: balance } = useBalance({
+    address,
+    query: { enabled: !!address },
+  })
+
+  const activeChain = chainId ? wagmiConfig.chains.find((chain) => chain.id === chainId) : undefined
 
   return (
-    <Providers>
-      <Toaster position="top-center" />
-      
-      <div className="flex min-h-screen">
-        {/* Sidebar */}
-        <aside className="fixed left-0 top-0 h-screen w-64 flex flex-col" style={{ background: '#0A0A0A', borderRight: '1px solid rgba(212, 175, 55, 0.1)' }}>
-          {/* Logo */}
-          <div className="p-6 border-b" style={{ borderColor: 'rgba(212, 175, 55, 0.1)' }}>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center p-1.5" style={{ background: 'rgba(212, 175, 55, 0.1)' }}>
-                <Image src="/shah-gold-logo.png" alt="SHAH" width={32} height={32} className="object-contain" />
-              </div>
-              <div>
-                <div className="text-xl font-semibold" style={{ color: '#F1F1F1' }}>SHAH</div>
-                <div className="text-xs" style={{ color: '#A1A1AA' }}>Wallet</div>
-              </div>
+    <div className="app-shell">
+      <aside className="sidebar">
+        <div>
+          <div className="sidebar-logo">
+            <div
+              className="flex h-11 w-11 items-center justify-center rounded-full"
+              style={{ background: 'rgba(212, 175, 55, 0.12)', border: '1px solid rgba(212, 175, 55, 0.25)' }}
+            >
+              <Image src="/shah-gold-logo.png" alt="SHAH Wallet" width={28} height={28} priority />
+            </div>
+            <div>
+              <h1>SHAH Wallet</h1>
+              <p style={{ color: 'var(--text-secondary)', margin: 0, fontSize: '0.75rem' }}>Royal DeFi Suite</p>
             </div>
           </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1">
+          <nav className="sidebar-nav">
             {navItems.map((item) => {
               const Icon = item.icon
               const isActive = pathname === item.href
-              
+
               return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all relative group"
-                  style={{
-                    background: isActive ? 'rgba(212, 175, 55, 0.1)' : 'transparent',
-                    color: isActive ? '#D4AF37' : '#A1A1AA',
-                  }}
-                >
-                  {isActive && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-r" style={{ background: '#D4AF37' }} />
-                  )}
-                  <Icon className="w-5 h-5" style={{ color: isActive ? '#D4AF37' : '#A1A1AA' }} />
-                  <span className="text-sm">{item.name}</span>
-                  {isActive && (
-                    <div className="absolute inset-0 rounded-lg" style={{ boxShadow: '0 0 15px rgba(212, 175, 55, 0.2)' }} />
-                  )}
+                <Link key={item.href} href={item.href} className={`sidebar-link ${isActive ? 'active' : ''}`}>
+                  <Icon className="h-5 w-5" strokeWidth={1.5} />
+                  <span>{item.name}</span>
                 </Link>
               )
             })}
           </nav>
+        </div>
 
-          {/* Footer */}
-          <div className="p-6 border-t" style={{ borderColor: 'rgba(212, 175, 55, 0.1)' }}>
-            <div className="flex items-center justify-between">
-              <div className="text-xs" style={{ color: '#A1A1AA' }}>
-                v1.0.0
-              </div>
-              <NotifBell />
+        <div className="sidebar-footer">
+          <span>v1.0.0</span>
+          <NotifBell />
+        </div>
+      </aside>
+
+      <div className="main-content">
+        <header className="topbar">
+          <div className="topbar-left">
+            <div className="status-pill">
+              <span className="inline-block h-2 w-2 rounded-full" style={{ background: '#00C27D' }} />
+              {activeChain?.name ?? 'Wallet Not Connected'}
             </div>
+            {isConnected && balance?.formatted && (
+              <div className="balance-pill">
+                <span>Balance</span>
+                <strong>{parseFloat(balance.formatted).toFixed(4)}</strong>
+                <span>{balance.symbol}</span>
+              </div>
+            )}
           </div>
-        </aside>
 
-        {/* Main Content */}
-        <main className="flex-1 ml-64" style={{ background: '#0A0A0A' }}>
-          {children}
-        </main>
+          <div className="topbar-right">
+            {isConnected && <div className="wallet-pill">{truncateAddress(address)}</div>}
+            <ConnectButton chainStatus="icon" showBalance={false} accountStatus={{ smallScreen: 'avatar', largeScreen: 'full' }} />
+          </div>
+        </header>
+
+        <main className="main-container fade-in">{children}</main>
       </div>
+    </div>
+  )
+}
+
+export default function RootShell({ children }: { children: React.ReactNode }) {
+  return (
+    <Providers>
+      <Toaster position="top-center" />
+      <ShellContent>{children}</ShellContent>
     </Providers>
   )
 }
