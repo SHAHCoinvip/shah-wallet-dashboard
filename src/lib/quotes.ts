@@ -1,5 +1,8 @@
-import { parseEther, formatEther } from 'viem'
+import { createPublicClient, formatEther, http } from 'viem'
+import { mainnet } from 'wagmi/chains'
 import { ROUTING } from '@/config/routing'
+import { SHAH_CONTRACTS, SHAH_NETWORK } from '@/config/shah-constants'
+import { ShahSwapABI } from '@/abi/ShahSwapABI'
 import { getBalancerQuote, BalancerQuote } from './balancer/quote'
 
 export interface QuoteParams {
@@ -34,34 +37,35 @@ export async function getShahSwapQuote(params: QuoteParams): Promise<ShahSwapQuo
   const { tokenInAddress, tokenOutAddress, amountIn, slippageBps } = params
 
   try {
-    // This is a placeholder - in the real implementation, this would:
-    // 1. Call ShahSwap contract's getAmountsOut function
-    // 2. Calculate price impact
-    // 3. Apply slippage tolerance
-    
-    // For now, we'll simulate a basic quote
-    const amountInFloat = parseFloat(formatEther(BigInt(amountIn)))
-    
-    // Simulate a simple swap with 0.3% fee (like Uniswap V2)
-    const fee = 0.003
-    const amountOutBeforeFee = amountInFloat * 1.0 // 1:1 ratio for demo
-    const amountOutAfterFee = amountOutBeforeFee * (1 - fee)
-    
-    // Apply slippage
-    const slippageMultiplier = 1 - (slippageBps / 10000)
-    const amountOutWithSlippage = amountOutAfterFee * slippageMultiplier
-    
-    // Calculate price impact (simplified)
-    const priceImpact = fee * 10000 // 30 basis points
+    const client = getPublicClient()
+    const routerAddress =
+      (process.env.NEXT_PUBLIC_SHAHSWAP_ROUTER || SHAH_CONTRACTS.ROUTER_V3) as `0x${string}`
 
-    return {
-      amountOut: parseEther(amountOutWithSlippage.toString()).toString(),
-      priceImpactBps: Math.round(priceImpact),
-      routeLabel: 'ShahSwap',
-      hops: 1,
-      effectiveSlippageBps: slippageBps
+    const path = [
+      tokenInAddress as `0x${string}`,
+      tokenOutAddress as `0x${string}`
+    ]
+
+    const amounts = await client.readContract({
+      address: routerAddress,
+      abi: ShahSwapABI,
+      functionName: 'getAmountsOut',
+      args: [BigInt(amountIn), path]
+    }) as bigint[]
+
+    if (!amounts || amounts.length < 2) {
+      return null
     }
 
+    const amountOut = amounts[amounts.length - 1]
+
+    return {
+      amountOut: amountOut.toString(),
+      priceImpactBps: 0,
+      routeLabel: 'ShahSwap',
+      hops: path.length - 1,
+      effectiveSlippageBps: slippageBps
+    }
   } catch (error) {
     console.warn('Failed to get ShahSwap quote:', error)
     return null
@@ -76,6 +80,10 @@ export async function getBalancerQuoteWrapper(params: QuoteParams): Promise<Bala
     return null
   }
 
+  if (process.env.NEXT_PUBLIC_ENABLE_BALANCER_POOLS === 'false') {
+    return null
+  }
+
   try {
     return await getBalancerQuote({
       tokenInAddress: params.tokenInAddress,
@@ -87,6 +95,25 @@ export async function getBalancerQuoteWrapper(params: QuoteParams): Promise<Bala
     console.warn('Failed to get Balancer quote:', error)
     return null
   }
+}
+
+let cachedPublicClient: ReturnType<typeof createPublicClient> | null = null
+
+function getPublicClient() {
+  if (cachedPublicClient) {
+    return cachedPublicClient
+  }
+
+  const rpcUrl =
+    process.env.NEXT_PUBLIC_RPC_MAINNET ||
+    SHAH_NETWORK.rpcUrl
+
+  cachedPublicClient = createPublicClient({
+    chain: mainnet,
+    transport: http(rpcUrl)
+  })
+
+  return cachedPublicClient
 }
 
 /**
