@@ -1,22 +1,23 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useAccount } from 'wagmi'
-import { Wallet, TrendingUp, ArrowUpRight, ArrowDownRight, Copy } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { useAccount, useBalance, useReadContract } from 'wagmi'
+import { Wallet, TrendingUp, ArrowUpRight, Copy } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { getAiTip } from '@/utils/aiTip'
-import TokenBarChart from '@/components/TokenBarChart'
 import VerifiedBadge from '@/components/VerifiedBadge'
-import ChartEmbed from '@/components/ChartEmbed'
 import TxHistory from '@/components/TxHistory'
 import { useStakingInfo } from '@/hooks/useStakingInfo'
 import TokenRow from '@/components/TokenRow'
 import SupabaseTest from '@/components/SupabaseTest'
 import { loadStripe } from '@stripe/stripe-js'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { formatUnits } from 'viem'
+import { ERC20ABI } from '@/abi/ERC20'
+import { getShahPriceUsd } from '@/lib/registry'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,37 +36,92 @@ const chartData = [
 export default function HomePage() {
   const { address, isConnected } = useAccount()
   const { amountStaked, tier, hasNftBoost } = useStakingInfo(address)
-
-  const [ethBalance, setEthBalance] = useState<string>('0.0000')
-  const [tokenBalances, setTokenBalances] = useState<any[]>([])
+  const [tokenBalances, setTokenBalances] = useState<
+    { symbol: string; balance: string; usdValue: number; address?: string; isVerified?: boolean }[]
+  >([])
   const [totalUSD, setTotalUSD] = useState<number>(0)
   const [aiTip, setAiTip] = useState<string>('')
   const [tipHistory, setTipHistory] = useState<string[]>([])
   const [email, setEmail] = useState('')
-  const [tradeLog, setTradeLog] = useState<string[]>([])
-  const [botActive, setBotActive] = useState(false)
-  const [botStatus, setBotStatus] = useState('Bot is off')
   const [discoveryTokens, setDiscoveryTokens] = useState<any[]>([])
+
+  const [ethPrice, setEthPrice] = useState<number>(0)
+  const [shahPrice, setShahPrice] = useState<number>(1.72)
+
+  const shahTokenAddress = process.env.NEXT_PUBLIC_SHAH as `0x${string}` | undefined
+
+  const { data: ethBalanceData } = useBalance({
+    address,
+    query: {
+      enabled: isConnected && !!address,
+      watch: true,
+    },
+  })
+
+  const { data: shahBalanceData } = useReadContract({
+    address: shahTokenAddress,
+    abi: ERC20ABI,
+    functionName: 'balanceOf',
+    args: address ? [address] : undefined,
+    query: {
+      enabled: Boolean(isConnected && address && shahTokenAddress),
+      watch: true,
+    },
+  })
+
+  const formattedEthBalance = useMemo(() => ethBalanceData?.formatted ?? '0', [ethBalanceData])
+  const formattedShahBalance = useMemo(() => {
+    if (!shahBalanceData) return '0'
+    try {
+      return formatUnits(shahBalanceData as bigint, 18)
+    } catch {
+      return '0'
+    }
+  }, [shahBalanceData])
 
   const fetchBalances = async (walletAddress: string) => {
     try {
-      const eth = 0
-      const tokens: any[] = []
+      const [ethPriceResponse, shahPriceUsd] = await Promise.all([
+        fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd')
+          .then((res) => res.json())
+          .catch(() => ({ ethereum: { usd: 0 } })),
+        getShahPriceUsd(),
+      ])
 
-      setEthBalance(eth.toString())
-      setTokenBalances(tokens)
+      const ethUsdPrice = ethPriceResponse?.ethereum?.usd ?? 0
 
-      const total = tokens.reduce((acc, t) => acc + (t.usdValue || 0), 0)
-      setTotalUSD(total)
+      setEthPrice(ethUsdPrice)
+      setShahPrice(shahPriceUsd)
 
-      const tipPrompt = `My wallet tokens are: ${tokens.map((t) => `${t.symbol} (${t.balance})`).join(', ')}. Suggest a useful crypto wallet tip.`
-      const tip = await getAiTip(tipPrompt)
-      setAiTip(tip)
-      setTipHistory((prev) => [tip, ...prev])
+      const balances = [
+        {
+          symbol: 'ETH',
+          balance: formattedEthBalance,
+          usdValue: parseFloat(formattedEthBalance) * ethUsdPrice,
+        },
+        shahTokenAddress
+          ? {
+              symbol: 'SHAH',
+              balance: formattedShahBalance,
+              usdValue: parseFloat(formattedShahBalance) * shahPriceUsd,
+              address: shahTokenAddress,
+            }
+          : null,
+      ].filter((token): token is { symbol: string; balance: string; usdValue: number; address?: string } => !!token)
 
-      const tradePrompt = `These are my wallet tokens: ${tokens.map((t) => `${t.symbol} (${t.balance})`).join(', ')}. What are some smart crypto trading ideas I can take right now?`
-      const aiTrades = await getAiTip(tradePrompt)
-      setTradeLog([aiTrades])
+      setTokenBalances(balances)
+      setTotalUSD(balances.reduce((acc, token) => acc + token.usdValue, 0))
+
+      if (balances.length > 0) {
+        const tokenSummary = balances
+          .map((token) => `${token.symbol} (${parseFloat(token.balance).toFixed(4)})`)
+          .join(', ')
+
+        const tipPrompt = `My wallet tokens are: ${tokenSummary}. Suggest a useful crypto wallet tip.`
+        const tip = await getAiTip(tipPrompt)
+        setAiTip(tip)
+        setTipHistory((prev) => [tip, ...prev])
+      }
     } catch (err) {
       console.error('Failed to fetch balances:', err)
     }
@@ -99,7 +155,8 @@ export default function HomePage() {
     if (isConnected && address) {
       fetchBalances(address)
     }
-  }, [address, isConnected])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address, isConnected, formattedEthBalance, formattedShahBalance])
 
   useEffect(() => {
     const loadDiscoveryData = async () => {
@@ -168,10 +225,10 @@ export default function HomePage() {
           <div className="absolute right-0 top-0 h-24 w-24 rounded-full" style={{ background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)' }} />
           <div className="relative">
             <div className="text-xs uppercase tracking-wide" style={{ color: '#A1A1AA' }}>ETH Balance</div>
-            <div className="mt-2 text-3xl font-semibold" style={{ color: '#F1F1F1' }}>{ethBalance}</div>
+            <div className="mt-2 text-3xl font-semibold" style={{ color: '#F1F1F1' }}>{Number(formattedEthBalance).toFixed(4)}</div>
             <div className="mt-2 flex items-center gap-2 text-sm" style={{ color: '#3B82F6' }}>
               <TrendingUp className="h-4 w-4" />
-              <span>${(parseFloat(ethBalance || '0') * 2000).toFixed(2)}</span>
+              <span>${(parseFloat(formattedEthBalance || '0') * ethPrice).toFixed(2)}</span>
             </div>
           </div>
         </div>
@@ -186,10 +243,10 @@ export default function HomePage() {
               <Image src="/shah-blue-logo.png" alt="SHAH" width={18} height={18} />
               SHAH Token
             </div>
-            <div className="mt-2 text-3xl font-semibold" style={{ color: '#3B82F6' }}>{amountStaked?.toString() || '0'}</div>
+            <div className="mt-2 text-3xl font-semibold" style={{ color: '#3B82F6' }}>{Number(formattedShahBalance).toFixed(2)}</div>
             <div className="mt-2 flex items-center gap-2 text-sm" style={{ color: '#10B981' }}>
               <ArrowUpRight className="h-4 w-4" />
-              <span>+12.5%</span>
+              <span>${(parseFloat(formattedShahBalance || '0') * shahPrice).toFixed(2)}</span>
             </div>
           </div>
         </div>

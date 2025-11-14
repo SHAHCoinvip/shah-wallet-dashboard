@@ -1,0 +1,237 @@
+warning: in the working copy of 'src/app/factory/page.tsx', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/src/app/factory/page.tsx b/src/app/factory/page.tsx[m
+[1mindex 93ef8cf..9e52737 100644[m
+[1m--- a/src/app/factory/page.tsx[m
+[1m+++ b/src/app/factory/page.tsx[m
+[36m@@ -7,86 +7,85 @@[m [mimport { ConnectButton } from '@rainbow-me/rainbowkit'[m
+ import { toast } from 'react-hot-toast'[m
+ import { Factory, CheckCircle2, Info } from 'lucide-react'[m
+ import Link from 'next/link'[m
+[31m-import { [m
+[31m-  CONTRACTS, [m
+[31m-  TokenFeatures, [m
+[32m+[m[32mimport {[m
+[32m+[m[32m  CONTRACTS,[m
+[32m+[m[32m  TokenFeatures,[m
+   TokenCreationArgs,[m
+   getFeatureBitmap,[m
+   validateTokenParams,[m
+   decodeTokenCreated,[m
+   formatShahPrice,[m
+   calcShahForUsd,[m
+[31m-  PRICING[m
+[32m+[m[32m  PRICING,[m
+ } from '@/lib/factory'[m
+ import { SHAHFactoryABI } from '@/abi/SHAHFactory'[m
+ import { SHAHPriceOracleABI } from '@/abi/SHAHPriceOracle'[m
+ import { ERC20ABI } from '@/abi/ERC20'[m
+ [m
+[31m-// Force dynamic rendering[m
+ export const dynamic = 'force-dynamic'[m
+ [m
+ type PaymentMethod = 'shah' | 'card'[m
+ type CreateStep = 'idle' | 'approving' | 'creating' | 'success'[m
+ [m
+[32m+[m[32mconst steps = [[m
+[32m+[m[32m  { number: 1, title: 'Token Details', description: 'Basic information' },[m
+[32m+[m[32m  { number: 2, title: 'Tokenomics', description: 'Supply & features' },[m
+[32m+[m[32m  { number: 3, title: 'Confirm', description: 'Review & deploy' },[m
+[32m+[m[32m][m
+[32m+[m
+ export default function FactoryPage() {[m
+   const { address, isConnected } = useAccount()[m
+[31m-  [m
+[32m+[m
+   const [currentStep, setCurrentStep] = useState(1)[m
+[31m-  [m
+[31m-  // Form state[m
+   const [formData, setFormData] = useState({[m
+     name: '',[m
+     symbol: '',[m
+     decimals: 18,[m
+     initialSupply: '',[m
+     owner: address || '',[m
+[31m-    maxSupply: ''[m
+[32m+[m[32m    maxSupply: '',[m
+   })[m
+[31m-  [m
+[32m+[m
+   const [features, setFeatures] = useState<TokenFeatures>({[m
+     basic: true,[m
+     burnable: false,[m
+     pausable: false,[m
+     capped: false,[m
+     ownable: true,[m
+[31m-    upgradeable: false[m
+[32m+[m[32m    upgradeable: false,[m
+   })[m
+[31m-  [m
+[31m-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('shah')[m
+[32m+[m
+[32m+[m[32m  const [paymentMethod] = useState<PaymentMethod>('shah')[m
+   const [createStep, setCreateStep] = useState<CreateStep>('idle')[m
+   const [createdTokenAddress, setCreatedTokenAddress] = useState<`0x${string}` | null>(null)[m
+   const [requiredShahAmount, setRequiredShahAmount] = useState<string>('0')[m
+[31m-  [m
+[31m-  // Contract reads[m
+[32m+[m
+   const { data: shahPriceData } = useReadContract({[m
+     address: CONTRACTS.SHAH_PRICE_ORACLE,[m
+     abi: SHAHPriceOracleABI,[m
+     functionName: 'getPriceInUSD',[m
+   })[m
+[31m-  [m
+   const shahPrice = formatShahPrice(shahPriceData)[m
+[31m-  [m
+[32m+[m
+   const { data: shahBalance } = useReadContract({[m
+     address: CONTRACTS.SHAH_TOKEN,[m
+     abi: ERC20ABI,[m
+     functionName: 'balanceOf',[m
+     args: [address!],[m
+[31m-    query: { enabled: !!address }[m
+[32m+[m[32m    query: { enabled: !!address },[m
+   })[m
+[31m-  [m
+[32m+[m
+   const { data: shahAllowance } = useReadContract({[m
+     address: CONTRACTS.SHAH_TOKEN,[m
+     abi: ERC20ABI,[m
+     functionName: 'allowance',[m
+     args: [address!, CONTRACTS.SHAH_FACTORY],[m
+[31m-    query: { enabled: !!address }[m
+[32m+[m[32m    query: { enabled: !!address },[m
+   })[m
+[31m-  [m
+[31m-  // Contract writes[m
+[32m+[m
+   const { writeContract: approveShah, data: approveHash } = useWriteContract()[m
+   const { writeContract: createToken, data: createHash } = useWriteContract()[m
+[31m-  [m
+[31m-  // Transaction receipts[m
+[32m+[m
+   const { isLoading: isApproving } = useWaitForTransactionReceipt({[m
+     hash: approveHash,[m
+     onSuccess: () => {[m
+[36m@@ -97,9 +96,9 @@[m [mexport default function FactoryPage() {[m
+     onError: () => {[m
+       toast.error('❌ SHAH approval failed')[m
+       setCreateStep('idle')[m
+[31m-    }[m
+[32m+[m[32m    },[m
+   })[m
+[31m-  [m
+[32m+[m
+   const { isLoading: isCreating } = useWaitForTransactionReceipt({[m
+     hash: createHash,[m
+     onSuccess: (receipt) => {[m
+[36m@@ -116,17 +115,15 @@[m [mexport default function FactoryPage() {[m
+     onError: () => {[m
+       toast.error('❌ Token creation failed')[m
+       setCreateStep('idle')[m
+[31m-    }[m
+[32m+[m[32m    },[m
+   })[m
+[31m-  [m
+[31m-  // Update owner when wallet connects[m
+[32m+[m
+   useEffect(() => {[m
+     if (address && !formData.owner) {[m
+[31m-      setFormData(prev => ({ ...prev, owner: address }))[m
+[32m+[m[32m      setFormData((prev) => ({ ...prev, owner: address }))[m
+     }[m
+   }, [address, formData.owner])[m
+[31m-  [m
+[31m-  // Calculate required SHAH amount[m
+[32m+[m
+   useEffect(() => {[m
+     if (shahPrice && paymentMethod === 'shah') {[m
+       try {[m
+[36m@@ -138,48 +135,48 @@[m [mexport default function FactoryPage() {[m
+       }[m
+     }[m
+   }, [shahPrice, paymentMethod])[m
+[31m-  [m
+[32m+[m
+   const handleInputChange = (field: keyof typeof formData, value: string | number) => {[m
+[31m-    setFormData(prev => ({ ...prev, [field]: value }))[m
+[32m+[m[32m    setFormData((prev) => ({ ...prev, [field]: value }))[m
+   }[m
+[31m-  [m
+[32m+[m
+   const handleFeatureChange = (feature: keyof TokenFeatures, checked: boolean) => {[m
+[31m-    setFeatures(prev => ({ ...prev, [feature]: checked }))[m
+[32m+[m[32m    setFeatures((prev) => ({ ...prev, [feature]: checked }))[m
+   }[m
+[31m-  [m
+[32m+[m
+   const isFormValid = () => {[m
+     const errors = validateTokenParams({[m
+       ...formData,[m
+       owner: formData.owner as `0x${string}`,[m
+       features: getFeatureBitmap(features),[m
+[31m-      maxSupply: features.capped ? formData.maxSupply : '0'[m
+[32m+[m[32m      maxSupply: features.capped ? formData.maxSupply : '0',[m
+     })[m
+     return errors.length === 0[m
+   }[m
+[31m-  [m
+[32m+[m
+   const needsApproval = () => {[m
+     if (paymentMethod !== 'shah' || !shahAllowance || !requiredShahAmount) return false[m
+     return BigInt(shahAllowance.toString()) < BigInt(requiredShahAmount)[m
+   }[m
+[31m-  [m
+[32m+[m
+   const hasEnoughShah = () => {[m
+     if (paymentMethod !== 'shah' || !shahBalance || !requiredShahAmount) return true[m
+     return BigInt(shahBalance.toString()) >= BigInt(requiredShahAmount)[m
+   }[m
+[31m-  [m
+[32m+[m
+   const handleApproveShah = async () => {[m
+     if (!isConnected || !address) {[m
+       toast.error('Please connect your wallet')[m
+       return[m
+     }[m
+[31m-    [m
+[32m+[m
+     try {[m
+       setCreateStep('approving')[m
+       await approveShah({[m
+         address: CONTRACTS.SHAH_TOKEN,[m
+         abi: ERC20ABI,[m
+         functionName: 'approve',[m
+[31m-        args: [CONTRACTS.SHAH_FACTORY, BigInt(requiredShahAmount)][m
+[32m+[m[32m        args: [CONTRACTS.SHAH_FACTORY, BigInt(requiredShahAmount)],[m
+       })[m
+     } catch (error) {[m
+       console.error('Approval error:', error)[m
+[36m@@ -187,21 +184,21 @@[m [mexport default function FactoryPage() {[m
+       toast.error('❌ Failed to approve SHAH')[m
+     }[m
+   }[m
+[31m-  [m
+[32m+[m
+   const handleCreateToken = async () => {[m
+     if (!isConnected || !address) {[m
+       toast.error('Please connect your wallet')[m
+       return[m
+     }[m
+[31m-    [m
+[32m+[m
+     if (!isFormValid()) {[m
+       toast.error('Please check all form fields')[m
+       return[m
+     }[m
+[31m-    [m
+[32m+[m
+     try {[m
+       setCreateStep('creating')[m
+[31m-      [m
+[32m+[m
+       const tokenArgs: TokenCreationArgs = {[m
+         name: formData.name,[m
+         symbol: formData.symbol,[m
+[36m@@ -209,9 +206,9 @@[m [mexport default function FactoryPage() {[m
+         initialSupply: parseUnits(formDa
